@@ -1,0 +1,46 @@
+wordmark: Hrishikesh Khandade
+status: CS at Illinois · shipped on two app stores
+links:
+  - { label: GitHub, url: "https://github.com/hrishikeshkhandade" }
+  - { label: LinkedIn, url: "https://www.linkedin.com/in/hrishikeshkhandade" }
+landing:
+  frames:
+    - openers: ["I build", "I ship", "I make", "I write"]
+      middles: ["software", "apps", "tools", "small machines"]
+      endings:
+        - "that can read hands"
+        - "that can turn papers into games"
+        - "that can cook from a fridge photo"
+        - "that people actually use"
+        - "that can run on your own device"
+        - "that made it to two app stores"
+    - openers: ["I taught", "I trained", "I got"]
+      middles: ["a model", "a classifier", "a laptop camera", "a random forest"]
+      endings:
+        - "to read sign language"
+        - "to spell with its eyes"
+        - "to tell B from F"
+        - "to keep up with fingers"
+        - "to answer in under 100 ms"
+    - openers: ["Currently", "This semester", "Right now", "These days"]
+      middles: ["turning", "compiling", "rebuilding"]
+      endings:
+        - "research papers into platformers"
+        - "PDFs into boss fights"
+        - "47 pages into one level"
+        - "dense papers into playable worlds"
+    - openers: ["Freshman at Illinois,", "CS at Illinois,", "Dubai to Champaign,", "Chess player,", "Math olympian,"]
+      middles: ["still", "mostly", "always"]
+      endings:
+        - "shipping"
+        - "building things"
+        - "debugging"
+        - "counting parity"
+        - "looking for the next problem"
+    - openers: ["Hello.", "Hi.", "Welcome."]
+      middles: ["This hand", "This model", "This page"]
+      endings:
+        - "is spelling for you"
+        - "learned 26 letters"
+        - "is guessing the next letter"
+        - "never repeats itself"
