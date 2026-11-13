@@ -61,13 +61,18 @@ def top4(p):
     order = np.argsort(-p)[:4]
     return [[classes[i], round(float(p[i]), 4)] for i in order]
 
-# a few typical, correctly classified samples per letter (closest to the letter's median shape)
+# a few typical, correctly classified samples per letter (from the quarter closest to the letter's median shape)
 samples = {}
 for c in classes:
     idx = np.where((y == c) & (pred == c))[0]
     med = np.median(X[idx], axis=0)
-    near = idx[np.argsort(np.linalg.norm(X[idx] - med, axis=1))[:40]]
-    pick = rng.choice(near, size=4, replace=False)
+    near = idx[np.argsort(np.linalg.norm(X[idx] - med, axis=1))[:max(60, len(idx) // 4)]]
+    # of the typical samples, keep the four seen most face-on (widest outline), so they read clearly when drawn
+    def face_on(i):
+        p = X[i].reshape(21, 3)
+        w, h = np.ptp(p[:, 0]), np.ptp(p[:, 1])
+        return min(w, h) / max(w, h, 1e-9)
+    pick = sorted(near, key=face_on, reverse=True)[:4]
     samples[c] = [{'points': [round(float(v), 4) for v in X[i]], 'top': top4(proba[i])} for i in pick]
 (root / 'src/data').mkdir(parents=True, exist_ok=True)
 (root / 'src/data/aslive-samples.json').write_text(json.dumps(samples, separators=(',', ':')))

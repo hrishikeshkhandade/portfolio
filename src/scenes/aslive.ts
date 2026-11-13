@@ -2,7 +2,7 @@ import '../styles/project.css'
 import type { Scene } from '../engine/scene'
 import { site } from '../content/site'
 import type { HandStyle } from '../hand/draw'
-import { drawPoints, toPoints, type Pt2 } from '../aslive/draw'
+import { drawPoints, legibility, toPoints, type Pt2 } from '../aslive/draw'
 import { normalizeLandmarks, parseForest, topK, type Forest } from '../aslive/forest'
 import { samples } from '../aslive/samples'
 
@@ -51,6 +51,7 @@ export function createAslive(): Scene {
   // chart state: 7 columns on wide screens, 5 on phones
   let hovered = -1, COLS = 7, ROWS = 4
   let shown: Pt2[] = toPoints(samples.A[0].points)
+  let palm = 0.55
 
   // camera state
   let mode: 'chart' | 'loading' | 'camera' = 'chart'
@@ -72,6 +73,11 @@ export function createAslive(): Scene {
   }
 
   const label = (sign: string): string => (sign === 'SPACE' ? 'space' : sign)
+  // For each sign, the bundled sample seen most face-on, so the chart is as readable as the data allows.
+  const chart = SIGNS.map((sign) => {
+    const best = samples[sign].reduce((a, b) => (legibility(toPoints(b.points)) > legibility(toPoints(a.points)) ? b : a))
+    return { sign, points: toPoints(best.points), top: best.top }
+  })
 
   /** Which chart cell a canvas position falls in, or -1. */
   function cellAt(x: number, y: number): number {
@@ -84,8 +90,7 @@ export function createAslive(): Scene {
     if (index === hovered || mode === 'camera') return
     hovered = index
     if (index < 0) { infoEl.textContent = HINT; draw(); return }
-    const sign = SIGNS[index]
-    const top = samples[sign][0].top
+    const { sign, top } = chart[index]
     infoEl.textContent = `${label(sign)} — model says ${top.map(([l, p]) => `${label(l)} ${p.toFixed(2)}`).join(' · ')}`
     draw()
   }
@@ -94,10 +99,10 @@ export function createAslive(): Scene {
     const cw = width / COLS, ch = height / ROWS
     ctx.font = "11px 'IBM Plex Mono', ui-monospace, monospace"
     ctx.textBaseline = 'top'
-    SIGNS.forEach((sign, i) => {
+    chart.forEach(({ sign, points }, i) => {
       const x = (i % COLS) * cw, y = Math.floor(i / COLS) * ch
       if (i === hovered) { ctx.fillStyle = style.wash; ctx.fillRect(x + 2, y + 2, cw - 4, ch - 4) }
-      drawPoints(ctx, toPoints(samples[sign][0].points), { x: x + 6, y: y + 12, w: cw - 12, h: ch - 16 }, style, Math.max(1, Math.min(2, cw / 70)), 2.25)
+      drawPoints(ctx, points, { x: x + 10, y: y + 22, w: cw - 20, h: ch - 30 }, style, Math.max(1.2, Math.min(2.2, cw / 60)))
       ctx.fillStyle = i === hovered ? style.ink : style.soft
       ctx.fillText(label(sign), x + 8, y + 7)
     })
@@ -135,6 +140,8 @@ export function createAslive(): Scene {
     const order = topK(probs, 4)
     const top: Top = order.map((i) => [forest!.classes[i], probs[i]])
     shown = toPoints(features)
+    // Wrist to middle knuckle barely changes as fingers move, unlike the model's own unit.
+    palm = Math.hypot(features[27], features[28], features[29]) || palm
     const [label, confidence] = top[0]
     streak = label === streakLabel ? streak + 1 : 1
     streakLabel = label
@@ -165,7 +172,7 @@ export function createAslive(): Scene {
 
   function draw(): void {
     ctx.clearRect(0, 0, width, height)
-    if (mode === 'camera') drawPoints(ctx, shown, { x: 0, y: 0, w: width, h: height }, style)
+    if (mode === 'camera') drawPoints(ctx, shown, { x: 0, y: 0, w: width, h: height }, style, 3, Math.min(width, height) / (palm * 4.4))
     else drawChart()
   }
 

@@ -52,3 +52,22 @@ describe('ASLive forest in the browser', () => {
     moved.forEach((v, i) => expect(v).toBeCloseTo(f[i], 9))
   })
 })
+
+describe('chart display', () => {
+  it('fits every sign to the same box size, however the model scales it', async () => {
+    const { fitScale, toPoints } = await import('../src/aslive/draw')
+    const box = { x: 0, y: 0, w: 100, h: 100 }
+    for (const [sign, list] of Object.entries(samples)) for (const s of list) {
+      const pts = toPoints(s.points)
+      const k = fitScale(pts, box, 1)
+      const xs = pts.map((p) => p[0] * k), ys = pts.map((p) => p[1] * k)
+      const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys)
+      expect(Math.max(w, h), sign).toBeCloseTo(100, 6)
+      expect(Math.min(w, h), sign).toBeLessThanOrEqual(100 + 1e-6)
+    }
+  })
+  it('rates a face-on hand as more legible than an edge-on one', async () => {
+    const { legibility } = await import('../src/aslive/draw')
+    expect(legibility([[0, 0], [1, 1]])).toBeGreaterThan(legibility([[0, 0], [0.1, 1]]))
+  })
+})

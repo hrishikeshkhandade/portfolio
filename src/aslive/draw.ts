@@ -12,13 +12,32 @@ export const lerpPoints = (a: Pt2[], b: Pt2[], t: number): Pt2[] =>
 
 export interface Box { x: number; y: number; w: number; h: number }
 
-/** Draws 21 landmarks centered in a box, in the same line-and-dot style as the landing hand. */
-export function drawPoints(ctx: CanvasRenderingContext2D, pts: Pt2[], box: Box, style: HandStyle, dot = 3, fill = 2.9): void {
+const bounds = (pts: Pt2[]): [minX: number, minY: number, maxX: number, maxY: number] => {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
   for (const [x, y] of pts) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y) }
-  // Landmarks are in units of wrist-to-middle-fingertip distance, so one fixed scale suits every letter.
-  // `fill` is how many hand-lengths fit across the box; smaller draws the hand larger.
-  const scale = Math.min(box.w, box.h) / fill
+  return [minX, minY, maxX, maxY]
+}
+
+/**
+ * Pixels per landmark unit that make this hand fill the box. The model's units are relative to the
+ * wrist-to-middle-fingertip distance, so hands with a straight middle finger come out small and
+ * fists come out large; fitting each to its box shows them all at a readable size.
+ */
+export function fitScale(pts: Pt2[], box: Box, margin = 0.84): number {
+  const [minX, minY, maxX, maxY] = bounds(pts)
+  return Math.min(box.w / Math.max(maxX - minX, 1e-6), box.h / Math.max(maxY - minY, 1e-6)) * margin
+}
+
+/** How much of a square the hand's outline covers once fitted; higher means a clearer, less edge-on view. */
+export function legibility(pts: Pt2[]): number {
+  const [minX, minY, maxX, maxY] = bounds(pts)
+  const w = maxX - minX, h = maxY - minY
+  return Math.min(w, h) / Math.max(w, h, 1e-6)
+}
+
+/** Draws 21 landmarks centered in a box, in the same line-and-dot style as the landing hand. */
+export function drawPoints(ctx: CanvasRenderingContext2D, pts: Pt2[], box: Box, style: HandStyle, dot = 3, scale = fitScale(pts, box)): void {
+  const [minX, minY, maxX, maxY] = bounds(pts)
   const ox = box.x + box.w / 2 - ((minX + maxX) / 2) * scale, oy = box.y + box.h / 2 - ((minY + maxY) / 2) * scale
   const p = pts.map(([x, y]): Pt2 => [ox + x * scale, oy + y * scale])
 
