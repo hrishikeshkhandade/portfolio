@@ -33,17 +33,9 @@ export function project(pts: Pt[], view: HandView): Pt[] {
 export function drawHand(ctx: CanvasRenderingContext2D, pts: Pt[], view: HandView, style: HandStyle): void {
   const p = project(pts, view)
 
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-  for (const [x, y] of p) { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y) }
-  const pad = view.scale * 0.16
   ctx.lineWidth = 1
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
-
-  ctx.strokeStyle = style.faint
-  ctx.setLineDash([3, 4])
-  ctx.strokeRect(Math.round(minX - pad) + 0.5, Math.round(minY - pad) + 0.5, Math.round(maxX - minX + pad * 2), Math.round(maxY - minY + pad * 2))
-  ctx.setLineDash([])
 
   BONES.forEach(([a, b], i) => {
     ctx.strokeStyle = PALM_BONES.has(i) || i === 20 ? style.faint : style.ink

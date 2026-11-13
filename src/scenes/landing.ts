@@ -9,9 +9,11 @@ import { drawHand, type HandStyle } from '../hand/draw'
 import { LETTERS, REST } from '../hand/poses'
 import { landmarks, lerpPose, type Pose, type Pt } from '../hand/skeleton'
 
-const POSE_MS = 300
-const GAP_MS = 110
-const SPACE_MS = 150
+const POSE_MS = 240
+const GAP_MS = 150
+const SPACE_MS = 120
+/** Progress at which the winning row is marked as chosen. */
+const CHOSEN_AT = 0.72
 const END_HOLD_MS = 2600
 const MAX_WORD = 16
 
@@ -41,7 +43,7 @@ export function createLanding(seed: number): Scene {
   let ctx: CanvasRenderingContext2D
   let rows: { li: HTMLLIElement; ch: HTMLElement; bar: HTMLElement; p: HTMLElement }[] = []
   let doneEl: HTMLElement, tentEl: HTMLElement, srEl: HTMLElement, latEl: HTMLElement
-  let spellBtn: HTMLButtonElement, input: HTMLInputElement
+  let spellBtn: HTMLButtonElement, input: HTMLInputElement, list: HTMLElement
   let observer: ResizeObserver | null = null
 
   let style = readStyle()
@@ -78,6 +80,7 @@ export function createLanding(seed: number): Scene {
   function showBars(bars: number[], chosen: boolean): void {
     if (!plan) return
     const chars = [plan.letter, ...plan.rivals]
+    list.classList.add('live')
     rows.forEach((row, k) => {
       const i = order[k]
       row.ch.textContent = chars[i]
@@ -101,7 +104,7 @@ export function createLanding(seed: number): Scene {
 
     if (plan) {
       const t = Math.min(1, (now - planStart) / plan.ms)
-      showBars(barsAt(plan, t), t >= 0.85)
+      showBars(barsAt(plan, t), t >= CHOSEN_AT && leaderAt(plan, t) === 0)
       const ch = sentence[idx]
       if (t < 1) {
         const lead = leaderAt(plan, t)
@@ -138,7 +141,7 @@ export function createLanding(seed: number): Scene {
     cur = lerpPose(from, to, easeOut((now - poseStart) / (POSE_MS / speed)))
     ctx.clearRect(0, 0, width, height)
     const pts = landmarks({ ...cur, rot: cur.rot + tilt }, mirror)
-    drawHand(ctx, pts, { cx: width / 2, cy: height / 2, scale: Math.min(width, height) * 0.34, pointer }, style)
+    drawHand(ctx, pts, { cx: width / 2, cy: height / 2, scale: Math.min(width / 1.9, height / 2.5), pointer }, style)
   }
 
   function frame(now: number): void {
@@ -239,6 +242,7 @@ export function createLanding(seed: number): Scene {
         bar: li.querySelector<HTMLElement>('.bar i')!,
         p: li.querySelector<HTMLElement>('.p')!,
       }))
+      list = el.querySelector('.cands')!
       doneEl = el.querySelector('.done')!
       tentEl = el.querySelector('.tent')!
       srEl = el.querySelector('.sr-only')!

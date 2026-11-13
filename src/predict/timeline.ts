@@ -32,7 +32,7 @@ export function planLetter(rng: Rng, letter: string): LetterPlan {
   const rest = 1 - win
   const roll = rng()
   const behavior: Behavior = roll < 1 / 12 ? 'corrected' : roll < 0.3 ? 'hesitant' : 'confident'
-  const ms = range(rng, 450, 650) * (behavior === 'confident' ? 1 : behavior === 'hesitant' ? 1.4 : 1.8)
+  const ms = range(rng, 260, 380) * (behavior === 'confident' ? 1 : behavior === 'hesitant' ? 1.5 : 2.1)
   return {
     letter,
     rivals,

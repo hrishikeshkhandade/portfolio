@@ -7,17 +7,32 @@
 }
 .landing[data-side='right'] .hand { order: 2; }
 
-.hand { position: relative; height: min(64vh, 520px); }
+.hand {
+  position: relative; justify-self: center;
+  width: min(100%, 420px); aspect-ratio: 4 / 5; max-height: 62vh;
+  --tick: 14px;
+  background:
+    linear-gradient(var(--ink-faint), var(--ink-faint)) top left / var(--tick) 1px,
+    linear-gradient(var(--ink-faint), var(--ink-faint)) top left / 1px var(--tick),
+    linear-gradient(var(--ink-faint), var(--ink-faint)) top right / var(--tick) 1px,
+    linear-gradient(var(--ink-faint), var(--ink-faint)) top right / 1px var(--tick),
+    linear-gradient(var(--ink-faint), var(--ink-faint)) bottom left / var(--tick) 1px,
+    linear-gradient(var(--ink-faint), var(--ink-faint)) bottom left / 1px var(--tick),
+    linear-gradient(var(--ink-faint), var(--ink-faint)) bottom right / var(--tick) 1px,
+    linear-gradient(var(--ink-faint), var(--ink-faint)) bottom right / 1px var(--tick);
+  background-repeat: no-repeat;
+}
 .hand canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y; }
-.cap { position: absolute; left: 0; margin: 0; font-size: var(--t-cap); color: var(--ink-soft); }
-.cap-top { top: 0; }
-.cap-bot { bottom: 0; }
+.cap { position: absolute; left: 0; margin: 0; font-size: var(--t-cap); color: var(--ink-soft); white-space: nowrap; }
+.cap-top { bottom: calc(100% + var(--s2)); }
+.cap-bot { top: calc(100% + var(--s2)); }
 
 .read { display: grid; gap: var(--s5); align-content: center; min-width: 0; }
 
 .label { margin: 0 0 var(--s2); font-size: var(--t-cap); color: var(--ink-soft); }
 
 .cands { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); max-width: 280px; }
+.cands:not(.live) { visibility: hidden; }
 .cands li {
   display: grid; grid-template-columns: 16px 1fr 36px; align-items: center; gap: var(--s3);
   font-size: var(--t-cap); color: var(--ink-soft); height: 20px;
@@ -56,7 +71,10 @@
     gap: var(--s4); padding: 0 var(--s4) var(--s4); align-items: stretch;
   }
   .landing[data-side='right'] .hand { order: 0; }
-  .hand { height: auto; min-height: 220px; }
+  .hand { width: 100%; height: 100%; aspect-ratio: auto; max-height: none; min-height: 200px; }
+  .cap { left: var(--s3); }
+  .cap-top { bottom: auto; top: var(--s2); }
+  .cap-bot { top: auto; bottom: var(--s2); }
   .read { gap: var(--s4); }
   .sentence { font-size: var(--t-h1); min-height: 3.4em; }
 }

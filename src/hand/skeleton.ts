@@ -20,7 +20,10 @@ const BASE_ANGLE = [-8, -2, 5, 12]
 const SPREAD_ANGLE = [-14, -4, 6, 16]
 const FLEX = [80, 100, 70]
 const THUMB_ROOT: Pt = [-0.34, 0.28]
-const THUMB_LENGTH = [0.3, 0.26, 0.22]
+const THUMB_LENGTH = [0.27, 0.22, 0.18]
+/** Oblique projection of depth (toward the viewer) onto the page. */
+const DEPTH_X = -0.28
+const DEPTH_Y = -0.34
 const PIVOT: Pt = [0, 0.5]
 
 export const BONES: [number, number][] = [
@@ -56,8 +59,9 @@ export function landmarks(pose: Pose, mirror = false): Pt[] {
     for (let j = 0; j < 3; j++) {
       flex += pose.curl[f] * FLEX[j] * RAD
       const drawn = LENGTH[f][j] * Math.cos(flex)
-      fx += Math.sin(dir) * drawn + 0.03 * Math.sin(flex)
-      fy += Math.cos(dir) * drawn
+      const depth = LENGTH[f][j] * Math.sin(flex)
+      fx += Math.sin(dir) * drawn + depth * DEPTH_X
+      fy += Math.cos(dir) * drawn + depth * DEPTH_Y
       pts.push([fx, fy])
     }
   }

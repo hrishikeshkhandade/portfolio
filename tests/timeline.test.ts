@@ -31,7 +31,7 @@ describe('timeline', () => {
       expect(p.probs[0]).toBeLessThanOrEqual(0.97)
       expect(p.probs[1]).toBeGreaterThanOrEqual(p.probs[2])
       expect(p.probs[2]).toBeGreaterThanOrEqual(p.probs[3])
-      expect(p.ms).toBeGreaterThanOrEqual(450)
+      expect(p.ms).toBeGreaterThanOrEqual(260)
     }
   })
   it('always ends on the correct letter with the planned values', () => {
