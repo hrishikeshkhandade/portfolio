@@ -121,7 +121,7 @@ The seed is shown small in a corner (`seed 48213`). Opening the same seed replay
 
 **5.1.2 Interaction**
 
-- **Type to spell:** pressing a letter key, or tapping "spell a word" on touch devices, lets the visitor enter a word (letters only, max 16); the hand spells it, then the generated sentences resume.
+- **Type to spell:** a "spell a word" button opens a small text field; the visitor enters a word (letters only, max 16) and presses Enter; the hand spells it, then the generated sentences resume. It opens from the button rather than from any key press so it never clashes with navigation keys.
 - **Pointer presence:** landmark points lean a few pixels toward a nearby pointer.
 
 ### 5.2 Project scenes
