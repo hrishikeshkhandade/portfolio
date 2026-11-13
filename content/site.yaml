@@ -5,8 +5,15 @@ links:
   - { label: LinkedIn, url: "https://www.linkedin.com/in/hrishikeshkhandade" }
 work:
   - name: ASLive
+    id: aslive
     line: Real-time ASL fingerspelling translator
     stat: "90% accuracy · under 100 ms"
+    summary: Reads American Sign Language fingerspelling from a webcam and turns it into text, entirely on your own device. Built as a two-person team; published research paper.
+    stats:
+      - { value: "90%", label: "classification accuracy" }
+      - { value: "<100 ms", label: "camera to letter" }
+      - { value: "100", label: "decision trees, 27 signs" }
+    note: Published under a team developer account; co-developed by Hrishikesh Khandade.
     links:
       - { label: App Store, url: "https://apps.apple.com/in/app/aslive/id6763903531" }
       - { label: Microsoft Store, url: "https://apps.microsoft.com/detail/9nt9h323f8xv" }

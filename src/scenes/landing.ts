@@ -30,7 +30,7 @@ function readStyle(): HandStyle {
   }
 }
 
-export function createLanding(seed: number, replay = false): Scene {
+export function createLanding(seed: number, replay = false, openScene: (id: string) => void = () => {}): Scene {
   const rng = mulberry32(seed)
   const mirror = rng() < 0.5
   const side = rng() < 0.5 ? 'left' : 'right'
@@ -222,10 +222,20 @@ export function createLanding(seed: number, replay = false): Scene {
         a.setAttribute('aria-label', `${item.name}: ${link.label} (opens in a new tab)`)
         links.append(a)
       }
-      li.append(cell('num', String(i + 1).padStart(2, '0')), cell('name', item.name), cell('line', item.line), cell('stat', item.stat), links)
+      let name: HTMLElement = cell('name', item.name)
+      if (item.id) {
+        // Projects with their own scene open it; the rest only link out.
+        const open = document.createElement('a')
+        open.className = 'name'
+        open.href = `#${item.id}`
+        open.textContent = item.name
+        open.addEventListener('click', (e) => { e.preventDefault(); openScene(item.id!) })
+        name = open
+      }
+      li.append(cell('num', String(i + 1).padStart(2, '0')), name, cell('line', item.line), cell('stat', item.stat), links)
       // Pointing at a project makes the hand spell its name.
-      const name = item.name.replace(/[^a-z ]/gi, '')
-      li.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse' && !reduce) say(name) })
+      const spoken = item.name.replace(/[^a-z ]/gi, '')
+      li.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse' && !reduce) say(spoken) })
       list.append(li)
     })
     nav.append(label, list)
@@ -256,6 +266,7 @@ export function createLanding(seed: number, replay = false): Scene {
       el = document.createElement('section')
       el.className = 'landing'
       el.dataset.side = side
+      el.dataset.scroll = ''
       el.innerHTML = `
         <div class="hand">
           <canvas aria-hidden="true"></canvas>

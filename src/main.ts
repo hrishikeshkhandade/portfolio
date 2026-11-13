@@ -5,6 +5,7 @@ import './styles/base.css'
 import './styles/landing.css'
 import { site } from './content/site'
 import { randomSeed } from './lib/rng'
+import { createStage, type SceneDef } from './engine/stage'
 import { createLanding } from './scenes/landing'
 import { cycleMode, getMode, startPalette } from './theme/apply'
 
@@ -33,6 +34,8 @@ const replay = Number.isInteger(param) && param > 0
 const seed = replay ? param : randomSeed()
 document.getElementById('seed')!.textContent = `seed ${seed}`
 
-const landing = createLanding(seed, replay)
-landing.mount(document.getElementById('scene')!)
-landing.start()
+const scenes: SceneDef[] = [
+  { id: 'hand', title: 'Hand', load: () => createLanding(seed, replay, (id) => stage.go(id)) },
+  { id: 'aslive', title: 'ASLive', load: async () => (await import('./scenes/aslive')).createAslive() },
+]
+const stage = createStage(document.getElementById('scene')!, document.getElementById('markers')!, scenes, document.title)

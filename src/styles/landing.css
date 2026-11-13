@@ -81,6 +81,9 @@
   transition: background-color 160ms var(--ease);
 }
 .work li:hover, .work li:focus-within { background: var(--wash); }
+.work a.name { padding: 0; }
+.work a.name::after { bottom: -2px; background: transparent; }
+.work a.name:hover::after { background: var(--ink); }
 .work .name { font-family: var(--serif); font-size: var(--t-h3); letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; }
 .work .line { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .work .stat { color: var(--ink); white-space: nowrap; }
