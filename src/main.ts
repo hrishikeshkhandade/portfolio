@@ -2,6 +2,8 @@ import '@fontsource-variable/newsreader'
 import '@fontsource/ibm-plex-mono/latin-400.css'
 import '@fontsource/ibm-plex-mono/latin-500.css'
 import './styles/base.css'
+import './styles/landing.css'
+import { site } from './content/site'
 import { randomSeed } from './lib/rng'
 import { createLanding } from './scenes/landing'
 import { cycleMode, getMode, startPalette } from './theme/apply'
@@ -15,6 +17,16 @@ const showMode = (m: string) => {
 }
 showMode(getMode())
 modeBtn.addEventListener('click', () => showMode(cycleMode()))
+
+const linksEl = document.getElementById('links')!
+for (const link of site.links) {
+  const a = document.createElement('a')
+  a.href = link.url
+  a.target = '_blank'
+  a.rel = 'noopener'
+  a.textContent = link.label
+  linksEl.append(a)
+}
 
 const param = Number(new URLSearchParams(location.search).get('seed'))
 const replay = Number.isInteger(param) && param > 0

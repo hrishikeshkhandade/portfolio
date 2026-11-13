@@ -163,7 +163,7 @@ export function createLanding(seed: number, replay = false): Scene {
     canvas.width = Math.max(1, Math.round(width * dpr))
     canvas.height = Math.max(1, Math.round(height * dpr))
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    if (!running) draw(performance.now())
+    draw(performance.now())
   }
 
   /** Reduced motion: show a finished sentence, the last letter's pose and its final bars. */
@@ -179,15 +179,57 @@ export function createLanding(seed: number, replay = false): Scene {
     draw(performance.now())
   }
 
+  /** Interrupt the current sentence and spell this text instead; generated sentences resume after it. */
+  function say(text: string): void {
+    if (!text || text === sentence) return
+    if (reduce) { showStill(text); return }
+    begin(text)
+    holdUntil = 0
+  }
+
   function spell(word: string): void {
     const clean = word.replace(/[^a-z]/gi, '').slice(0, MAX_WORD).toLowerCase()
     input.value = ''
     input.hidden = true
     spellBtn.hidden = false
-    if (!clean) return
-    if (reduce) { showStill(clean); return }
-    begin(clean)
-    holdUntil = 0
+    say(clean)
+  }
+
+  function buildWork(): HTMLElement {
+    const nav = document.createElement('nav')
+    nav.className = 'work'
+    nav.setAttribute('aria-label', 'Work')
+    const label = document.createElement('p')
+    label.className = 'label'
+    label.textContent = 'work'
+    const list = document.createElement('ol')
+    site.work.forEach((item, i) => {
+      const li = document.createElement('li')
+      const cell = (cls: string, text: string): HTMLElement => {
+        const span = document.createElement('span')
+        span.className = cls
+        span.textContent = text
+        return span
+      }
+      const links = document.createElement('span')
+      links.className = 'links'
+      for (const link of item.links) {
+        const a = document.createElement('a')
+        a.href = link.url
+        a.target = '_blank'
+        a.rel = 'noopener'
+        a.textContent = link.label
+        a.setAttribute('aria-label', `${item.name}: ${link.label} (opens in a new tab)`)
+        links.append(a)
+      }
+      li.append(cell('num', String(i + 1).padStart(2, '0')), cell('name', item.name), cell('line', item.line), cell('stat', item.stat), links)
+      // Pointing at a project makes the hand spell its name.
+      const name = item.name.replace(/[^a-z ]/gi, '')
+      li.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse' && !reduce) say(name) })
+      list.append(li)
+    })
+    nav.append(label, list)
+    return nav
   }
 
   const onPalette = (): void => { style = readStyle(); if (!running) draw(performance.now()) }
@@ -236,6 +278,7 @@ export function createLanding(seed: number, replay = false): Scene {
               autocapitalize="off" autocomplete="off" spellcheck="false" aria-label="Word for the hand to spell" hidden />
           </div>
         </div>`
+      el.append(buildWork())
       root.append(el)
 
       canvas = el.querySelector('canvas')!

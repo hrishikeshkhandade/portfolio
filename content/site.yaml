@@ -3,6 +3,25 @@ status: CS at Illinois · shipped on two app stores
 links:
   - { label: GitHub, url: "https://github.com/hrishikeshkhandade" }
   - { label: LinkedIn, url: "https://www.linkedin.com/in/hrishikeshkhandade" }
+work:
+  - name: ASLive
+    line: Real-time ASL fingerspelling translator
+    stat: "90% accuracy · under 100 ms"
+    links:
+      - { label: App Store, url: "https://apps.apple.com/in/app/aslive/id6763903531" }
+      - { label: Microsoft Store, url: "https://apps.microsoft.com/detail/9nt9h323f8xv" }
+      - { label: Paper, url: "https://laboffuture.odoo.com/aslive-final-research-paper" }
+  - name: Super Scholar
+    line: Turns research papers into a playable platformer
+    stat: "47-page PDF to game in under 1 s"
+    links:
+      - { label: Play, url: "https://super-scholar.super-scholar.workers.dev" }
+      - { label: Code, url: "https://github.com/hrishikeshkhandade/super-scholar" }
+  - name: Chef's Fridge
+    line: Fridge photo in, recipes out
+    stat: "Gemini 2.0 Flash · 30+ beta users"
+    links:
+      - { label: Code, url: "https://github.com/hrishikeshkhandade/Chefs-Fridge" }
 landing:
   frames:
     - openers: ["I build", "I ship", "I make", "I write"]

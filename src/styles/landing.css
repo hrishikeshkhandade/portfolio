@@ -1,15 +1,20 @@
 .landing {
   position: absolute; inset: 0;
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center; gap: var(--s6);
-  padding: 0 var(--s7);
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: center; column-gap: var(--s6); row-gap: var(--s5);
+  padding: var(--s5) var(--s7) var(--s2);
   max-width: 1200px; margin: 0 auto;
 }
-.landing[data-side='right'] .hand { order: 2; }
+.landing .hand { grid-area: 1 / 1; }
+.landing .read { grid-area: 1 / 2; }
+.landing[data-side='right'] .hand { grid-area: 1 / 2; }
+.landing[data-side='right'] .read { grid-area: 1 / 1; }
+.landing .work { grid-area: 2 / 1 / 3 / -1; }
 
 .hand {
-  position: relative; justify-self: center;
-  width: min(100%, 420px); aspect-ratio: 4 / 5; max-height: 62vh;
+  position: relative; justify-self: center; align-self: center;
+  height: min(100%, 460px); aspect-ratio: 4 / 5; max-width: 100%;
   --tick: 14px;
   background:
     linear-gradient(var(--ink-faint), var(--ink-faint)) top left / var(--tick) 1px,
@@ -65,16 +70,60 @@
 .spell-input::placeholder { color: var(--ink-soft); }
 [hidden] { display: none !important; }
 
+.work { min-width: 0; }
+.work ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.work li {
+  display: grid; grid-template-columns: 24px 168px minmax(0, 1fr) auto auto;
+  align-items: center; column-gap: var(--s5);
+  min-height: 44px; padding: 0 var(--s2);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--t-cap); color: var(--ink-soft);
+  transition: background-color 160ms var(--ease);
+}
+.work li:hover, .work li:focus-within { background: var(--wash); }
+.work .name { font-family: var(--serif); font-size: var(--t-h3); letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; }
+.work .line { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.work .stat { color: var(--ink); white-space: nowrap; }
+.work .links { display: flex; gap: var(--s4); justify-content: flex-end; min-width: 236px; }
+.work a, .foot-links a {
+  color: var(--ink-soft); text-decoration: none; white-space: nowrap;
+  padding: var(--s3) 0; position: relative;
+  transition: color 160ms var(--ease);
+}
+.work a::after, .foot-links a::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 9px; height: 1px; background: var(--rule);
+  transition: background-color 160ms var(--ease);
+}
+.work a:hover, .foot-links a:hover { color: var(--ink); }
+.work a:hover::after, .foot-links a:hover::after { background: var(--ink); }
+.foot-links { display: flex; gap: var(--s4); }
+
+@media (max-width: 1000px) {
+  .work li { grid-template-columns: 24px 150px minmax(0, 1fr) auto; }
+  .work .line { display: none; }
+  .work .links { min-width: 0; }
+}
+
 @media (max-width: 760px) {
   .landing {
-    grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto;
-    gap: var(--s4); padding: 0 var(--s4) var(--s4); align-items: stretch;
+    grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(220px, 40vh) auto auto;
+    row-gap: var(--s4); padding: 0 var(--s4) var(--s4); align-items: stretch;
+    overflow-y: auto; overscroll-behavior: contain;
   }
-  .landing[data-side='right'] .hand { order: 0; }
-  .hand { width: 100%; height: 100%; aspect-ratio: auto; max-height: none; min-height: 200px; }
+  .landing .hand, .landing[data-side='right'] .hand { grid-area: 1 / 1; }
+  .landing .read, .landing[data-side='right'] .read { grid-area: 2 / 1; }
+  .landing .work { grid-area: 3 / 1; }
+  .hand { width: 100%; height: 100%; aspect-ratio: auto; max-height: none; }
   .cap { left: var(--s3); }
   .cap-top { bottom: auto; top: var(--s2); }
   .cap-bot { top: auto; bottom: var(--s2); }
   .read { gap: var(--s4); }
   .sentence { font-size: var(--t-h1); min-height: 3.4em; }
+  .work li {
+    grid-template-columns: 24px minmax(0, 1fr); row-gap: 2px; align-items: baseline;
+    padding: var(--s3) var(--s1);
+  }
+  .work .line { display: block; white-space: normal; }
+  .work .line, .work .stat, .work .links { grid-column: 2; }
+  .work .links { justify-content: flex-start; flex-wrap: wrap; row-gap: 0; }
 }
