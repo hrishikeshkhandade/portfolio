@@ -1,5 +1,5 @@
 wordmark: Hrishikesh Khandade
-status: CS at Illinois · shipped on two app stores
+status: CS at UIUC · open to Summer 2027 internships
 links:
   - { label: GitHub, url: "https://github.com/hrishikeshkhandade" }
   - { label: LinkedIn, url: "https://www.linkedin.com/in/hrishikeshkhandade" }
@@ -48,7 +48,7 @@ landing:
         - "PDFs into boss fights"
         - "47 pages into one level"
         - "dense papers into playable worlds"
-    - openers: ["Freshman at Illinois,", "CS at Illinois,", "Dubai to Champaign,", "Chess player,", "Math olympian,"]
+    - openers: ["Freshman at UIUC,", "CS at UIUC,", "Dubai to Champaign,", "Chess player,", "Math olympian,"]
       middles: ["still", "mostly", "always"]
       endings:
         - "shipping"
