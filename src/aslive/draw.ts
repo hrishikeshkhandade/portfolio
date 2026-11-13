@@ -10,13 +10,16 @@ export const toPoints = (values: ArrayLike<number>): Pt2[] =>
 export const lerpPoints = (a: Pt2[], b: Pt2[], t: number): Pt2[] =>
   a.map(([x, y], i): Pt2 => [x + (b[i][0] - x) * t, y + (b[i][1] - y) * t])
 
+export interface Box { x: number; y: number; w: number; h: number }
+
 /** Draws 21 landmarks centered in a box, in the same line-and-dot style as the landing hand. */
-export function drawPoints(ctx: CanvasRenderingContext2D, pts: Pt2[], width: number, height: number, style: HandStyle): void {
+export function drawPoints(ctx: CanvasRenderingContext2D, pts: Pt2[], box: Box, style: HandStyle, dot = 3, fill = 2.9): void {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
   for (const [x, y] of pts) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y) }
   // Landmarks are in units of wrist-to-middle-fingertip distance, so one fixed scale suits every letter.
-  const scale = Math.min(width, height) / 2.9
-  const ox = width / 2 - ((minX + maxX) / 2) * scale, oy = height / 2 - ((minY + maxY) / 2) * scale
+  // `fill` is how many hand-lengths fit across the box; smaller draws the hand larger.
+  const scale = Math.min(box.w, box.h) / fill
+  const ox = box.x + box.w / 2 - ((minX + maxX) / 2) * scale, oy = box.y + box.h / 2 - ((minY + maxY) / 2) * scale
   const p = pts.map(([x, y]): Pt2 => [ox + x * scale, oy + y * scale])
 
   ctx.lineWidth = 1
@@ -32,7 +35,7 @@ export function drawPoints(ctx: CanvasRenderingContext2D, pts: Pt2[], width: num
   ctx.strokeStyle = style.ink
   p.forEach(([x, y], i) => {
     ctx.beginPath()
-    ctx.arc(x, y, i === 0 ? 3.5 : 3, 0, Math.PI * 2)
+    ctx.arc(x, y, i === 0 ? dot * 1.15 : dot, 0, Math.PI * 2)
     ctx.fill()
     ctx.stroke()
   })

@@ -1,4 +1,4 @@
-import { css, paletteAt, type Palette } from './palette'
+import { css, paletteAt, type Palette, type Tint } from './palette'
 
 export type Mode = 'auto' | 'day' | 'night'
 const KEY = 'palette-mode'
@@ -18,8 +18,16 @@ function hourFor(mode: Mode, now: Date): number {
   return now.getHours() + now.getMinutes() / 60
 }
 
+let tint: Tint | undefined
+
+/** Give the current scene its own paper color, or pass nothing to return to the default. */
+export function setTint(next?: Tint): void {
+  tint = next
+  applyPalette()
+}
+
 export function applyPalette(mode: Mode = getMode(), now: Date = new Date()): Palette {
-  const p = paletteAt(hourFor(mode, now))
+  const p = paletteAt(hourFor(mode, now), tint)
   const s = document.documentElement.style
   s.setProperty('--paper', css(p.paper))
   s.setProperty('--ink', css(p.ink))
@@ -29,6 +37,7 @@ export function applyPalette(mode: Mode = getMode(), now: Date = new Date()): Pa
   s.setProperty('--wash', css(p.ink, 0.06))
   s.setProperty('--flesh', css({ ...p.paper, l: p.paper.l + (p.dark ? 0.055 : -0.05) }))
   s.setProperty('--signal', css(p.signal))
+  s.setProperty('--signal-on-ink', css({ l: p.dark ? 0.45 : 0.78, c: 0.14, h: 155 }))
   s.setProperty('color-scheme', p.dark ? 'dark' : 'light')
   document.dispatchEvent(new CustomEvent('palettechange'))
   return p

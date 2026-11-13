@@ -1,7 +1,11 @@
 import type { Scene } from './scene'
+import { setTint } from '../theme/apply'
+import type { Tint } from '../theme/palette'
 import { createRouter, createWheelGate, hashFor, indexFromHash, type Route, type Router } from './router'
 
 export interface SceneDef extends Route {
+  /** Paper color for this scene; omit for the default. */
+  tint?: Tint
   load(): Promise<Scene> | Scene
 }
 
@@ -12,7 +16,7 @@ const typing = (target: EventTarget | null): boolean =>
  * Shows one scene at a time inside `root`, and wires keyboard, wheel, swipe, the address bar and
  * the numbered markers to move between scenes.
  */
-export function createStage(root: HTMLElement, markers: HTMLElement, defs: SceneDef[], baseTitle: string): Router {
+export function createStage(root: HTMLElement, markers: HTMLElement, where: HTMLElement, defs: SceneDef[], baseTitle: string): Router {
   let current: Scene | null = null
   let token = 0
   let followingAddress = false
@@ -85,6 +89,8 @@ export function createStage(root: HTMLElement, markers: HTMLElement, defs: Scene
     })
     document.title = index === 0 ? baseTitle : `${defs[index].title} — ${baseTitle.split(' — ')[0]}`
     document.documentElement.dataset.scene = defs[index].id
+    where.textContent = `${String(index + 1).padStart(2, '0')} — ${defs[index].title}`
+    setTint(defs[index].tint)
 
     const scene = await defs[index].load()
     if (mine !== token) { oldScene?.destroy(); oldLayer?.remove(); if (layer === oldLayer) layer = null; return }
@@ -99,7 +105,8 @@ export function createStage(root: HTMLElement, markers: HTMLElement, defs: Scene
     shownIndex = index
 
     if (!oldLayer) return
-    if (reduce || first) { oldScene?.destroy(); oldLayer.remove(); return }
+    // A hidden tab does not run animations, so a transition started there would hang half-way.
+    if (reduce || first || document.hidden) { oldScene?.destroy(); oldLayer.remove(); return }
     transition(oldLayer, oldScene, newLayer, index, dir)
   }
 

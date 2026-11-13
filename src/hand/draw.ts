@@ -1,6 +1,6 @@
 import { BONES, PALM_BONES, type Pt } from './skeleton'
 
-export interface HandStyle { ink: string; faint: string; paper: string }
+export interface HandStyle { ink: string; faint: string; paper: string; soft?: string; wash?: string }
 
 export interface HandView {
   /** Canvas position of the hand's center, in CSS pixels. */

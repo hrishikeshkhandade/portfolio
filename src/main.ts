@@ -36,6 +36,6 @@ document.getElementById('seed')!.textContent = `seed ${seed}`
 
 const scenes: SceneDef[] = [
   { id: 'hand', title: 'Hand', load: () => createLanding(seed, replay, (id) => stage.go(id)) },
-  { id: 'aslive', title: 'ASLive', load: async () => (await import('./scenes/aslive')).createAslive() },
+  { id: 'aslive', title: 'ASLive', tint: { h: 150, c: 0.032 }, load: async () => (await import('./scenes/aslive')).createAslive() },
 ]
-const stage = createStage(document.getElementById('scene')!, document.getElementById('markers')!, scenes, document.title)
+const stage = createStage(document.getElementById('scene')!, document.getElementById('markers')!, document.getElementById('where')!, scenes, document.title)

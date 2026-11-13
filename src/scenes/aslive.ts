@@ -1,17 +1,14 @@
 import '../styles/project.css'
 import type { Scene } from '../engine/scene'
 import { site } from '../content/site'
-import { easeOut } from '../lib/ease'
-import { mulberry32, pick, randomSeed } from '../lib/rng'
 import type { HandStyle } from '../hand/draw'
-import { drawPoints, lerpPoints, toPoints, type Pt2 } from '../aslive/draw'
+import { drawPoints, toPoints, type Pt2 } from '../aslive/draw'
 import { normalizeLandmarks, parseForest, topK, type Forest } from '../aslive/forest'
 import { samples } from '../aslive/samples'
 
-const WORDS = ['ASLIVE', 'HELLO', 'HANDS', 'SIGN', 'UIUC']
-const MOVE_MS = 280
-const HOLD_MS = 620
-const WORD_HOLD_MS = 1500
+/** The alphabet chart: every sign the model knows, in reading order. */
+const SIGNS = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'SPACE']
+const HINT = '26 letters and space, as real hands from the training data. Point at one to see what the model says.'
 /** As in the app: a letter is typed after this many consecutive frames agree on it. */
 const HOLD_FRAMES = 12
 const MIN_CONFIDENCE = 0.5
@@ -27,9 +24,10 @@ type FromWorker = { type: 'ready' } | { type: 'error'; message: string } | { typ
 const FRAME_SIDE = 320
 const START_TIMEOUT_MS = 45_000
 
-function readStyle(): HandStyle {
+function readStyle(): Required<HandStyle> {
   const s = getComputedStyle(document.documentElement)
-  return { ink: s.getPropertyValue('--ink').trim(), faint: s.getPropertyValue('--ink-faint').trim(), paper: s.getPropertyValue('--paper').trim() }
+  const v = (name: string): string => s.getPropertyValue(name).trim()
+  return { ink: v('--ink'), faint: v('--ink-faint'), paper: v('--paper'), soft: v('--ink-soft'), wash: v('--wash') }
 }
 
 const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string): HTMLElementTagNameMap[K] => {
@@ -41,23 +39,21 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: 
 
 export function createAslive(): Scene {
   const work = site.work.find((w) => w.id === 'aslive')!
-  const rng = mulberry32(randomSeed())
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
 
   let section: HTMLElement, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, video: HTMLVideoElement
   let rows: { li: HTMLLIElement; ch: HTMLElement; bar: HTMLElement; p: HTMLElement }[] = []
   let outEl: HTMLElement, capEl: HTMLElement, msgEl: HTMLElement, button: HTMLButtonElement, edit: HTMLElement
+  let readEl: HTMLElement, infoEl: HTMLElement
   let observer: ResizeObserver | null = null
   let style = readStyle()
   let width = 0, height = 0, raf = 0, running = false
 
-  // replay state
-  let word = '', at = 0, stepStart = 0, typed = false
-  let from: Pt2[] = toPoints(samples.A[0].points), to = from, shown = from
-  let fromBars = [0, 0, 0, 0], toTop: Top = samples.A[0].top
+  // chart state: 7 columns on wide screens, 5 on phones
+  let hovered = -1, COLS = 7, ROWS = 4
+  let shown: Pt2[] = toPoints(samples.A[0].points)
 
   // camera state
-  let mode: 'replay' | 'loading' | 'camera' = 'replay'
+  let mode: 'chart' | 'loading' | 'camera' = 'chart'
   let stream: MediaStream | null = null, worker: Worker | null = null, forest: Forest | null = null
   let lastVideoTime = -1, busy = false, streak = 0, streakLabel = '', lastTyped = '', output = ''
 
@@ -75,30 +71,36 @@ export function createAslive(): Scene {
     outEl.firstChild!.textContent = output
   }
 
-  function nextLetter(now: number): void {
-    if (at >= word.length) {
-      word = pick(rng, WORDS.filter((w) => w !== word))
-      at = 0
-      setOutput('')
-    }
-    const sample = pick(rng, samples[word[at]])
-    from = shown
-    to = toPoints(sample.points)
-    fromBars = toTop.map((_, i) => (i === 0 ? 0.25 : 0.25))
-    toTop = sample.top
-    stepStart = now
-    typed = false
+  const label = (sign: string): string => (sign === 'SPACE' ? 'space' : sign)
+
+  /** Which chart cell a canvas position falls in, or -1. */
+  function cellAt(x: number, y: number): number {
+    const col = Math.floor(x / (width / COLS)), row = Math.floor(y / (height / ROWS))
+    const i = row * COLS + col
+    return col >= 0 && col < COLS && row >= 0 && row < ROWS && i < SIGNS.length ? i : -1
   }
 
-  function replay(now: number): void {
-    if (!word) nextLetter(now)
-    const elapsed = now - stepStart
-    const t = easeOut(elapsed / MOVE_MS)
-    shown = lerpPoints(from, to, t)
-    setRows(toTop, toTop.map(([, p], i) => fromBars[i] + (p - fromBars[i]) * t), elapsed > MOVE_MS)
-    if (!typed && elapsed > MOVE_MS) { typed = true; setOutput(output + word[at].toLowerCase()) }
-    const last = at === word.length - 1
-    if (elapsed > MOVE_MS + (last ? WORD_HOLD_MS : HOLD_MS)) { at++; nextLetter(now) }
+  function hover(index: number): void {
+    if (index === hovered || mode === 'camera') return
+    hovered = index
+    if (index < 0) { infoEl.textContent = HINT; draw(); return }
+    const sign = SIGNS[index]
+    const top = samples[sign][0].top
+    infoEl.textContent = `${label(sign)} — model says ${top.map(([l, p]) => `${label(l)} ${p.toFixed(2)}`).join(' · ')}`
+    draw()
+  }
+
+  function drawChart(): void {
+    const cw = width / COLS, ch = height / ROWS
+    ctx.font = "11px 'IBM Plex Mono', ui-monospace, monospace"
+    ctx.textBaseline = 'top'
+    SIGNS.forEach((sign, i) => {
+      const x = (i % COLS) * cw, y = Math.floor(i / COLS) * ch
+      if (i === hovered) { ctx.fillStyle = style.wash; ctx.fillRect(x + 2, y + 2, cw - 4, ch - 4) }
+      drawPoints(ctx, toPoints(samples[sign][0].points), { x: x + 6, y: y + 12, w: cw - 12, h: ch - 16 }, style, Math.max(1, Math.min(2, cw / 70)), 2.25)
+      ctx.fillStyle = i === hovered ? style.ink : style.soft
+      ctx.fillText(label(sign), x + 8, y + 7)
+    })
   }
 
   /** Sends the newest camera frame to the tracker, one at a time so frames never queue up. */
@@ -163,13 +165,13 @@ export function createAslive(): Scene {
 
   function draw(): void {
     ctx.clearRect(0, 0, width, height)
-    drawPoints(ctx, shown, width, height, style)
+    if (mode === 'camera') drawPoints(ctx, shown, { x: 0, y: 0, w: width, h: height }, style)
+    else drawChart()
   }
 
   function frame(now: number): void {
     if (!running) return
-    if (mode === 'camera') camera(now)
-    else replay(now)
+    camera(now)
     draw()
     raf = requestAnimationFrame(frame)
   }
@@ -179,6 +181,8 @@ export function createAslive(): Scene {
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     width = box.width
     height = box.height
+    COLS = width < 420 ? 5 : 7
+    ROWS = Math.ceil(SIGNS.length / COLS)
     canvas.width = Math.max(1, Math.round(width * dpr))
     canvas.height = Math.max(1, Math.round(height * dpr))
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -193,13 +197,19 @@ export function createAslive(): Scene {
     busy = false
     video.srcObject = null
     video.hidden = true
-    mode = 'replay'
-    word = ''
+    mode = 'chart'
+    stop()
     setOutput('')
+    readEl.hidden = true
+    infoEl.hidden = false
+    hovered = -1
+    infoEl.textContent = HINT
+    section.classList.remove('is-live')
     button.disabled = false
     button.textContent = 'Try with your camera'
-    capEl.textContent = 'replay · real hands from the training data'
+    capEl.textContent = 'the alphabet, as the model learned it'
     capEl.classList.remove('live')
+    if (ctx) draw()
     edit.hidden = true
     msgEl.textContent = note
   }
@@ -222,6 +232,9 @@ export function createAslive(): Scene {
       video.hidden = false
       await video.play()
       mode = 'camera'
+      readEl.hidden = false
+      infoEl.hidden = true
+      section.classList.add('is-live')
       streak = 0
       lastTyped = ''
       setOutput('')
@@ -231,11 +244,11 @@ export function createAslive(): Scene {
       capEl.classList.add('live')
       edit.hidden = false
       msgEl.textContent = ''
-      if (reduce && !running) { running = true; raf = requestAnimationFrame(frame) }
+      start()
     } catch (error) {
       const denied = error instanceof DOMException && (error.name === 'NotAllowedError' || error.name === 'SecurityError')
       const missing = error instanceof DOMException && (error.name === 'NotFoundError' || error.name === 'OverconstrainedError')
-      stopCamera(denied ? 'Camera permission was not given. Replay continues.' : missing ? 'No camera found. Replay continues.' : 'Hand tracking could not start. Replay continues.')
+      stopCamera(denied ? 'Camera permission was not given.' : missing ? 'No camera found.' : 'Hand tracking could not start.')
     }
   }
 
@@ -251,8 +264,9 @@ export function createAslive(): Scene {
   const onPalette = (): void => { style = readStyle(); draw() }
   const onVisibility = (): void => { if (document.hidden) stop(); else start() }
 
+  /** Only the live camera needs a frame loop; the chart is drawn once and on hover. */
   function start(): void {
-    if (running || document.hidden || (reduce && mode !== 'camera')) return
+    if (running || document.hidden || mode !== 'camera') return
     running = true
     raf = requestAnimationFrame(frame)
   }
@@ -292,10 +306,14 @@ export function createAslive(): Scene {
       canvas = el('canvas')
       canvas.setAttribute('aria-hidden', 'true')
       hand.append(video, canvas, el('p', 'cap cap-top', '21 landmarks · 63 features'))
-      capEl = el('p', 'cap cap-bot', 'replay · real hands from the training data')
+      capEl = el('p', 'cap cap-bot', 'the alphabet, as the model learned it')
       hand.append(capEl)
 
       const read = el('div', 'a-read')
+      readEl = read
+      read.hidden = true
+      infoEl = el('p', 'a-info', HINT)
+      infoEl.setAttribute('aria-live', 'polite')
       const list = el('ol', 'cands live')
       list.setAttribute('aria-hidden', 'true')
       for (let i = 0; i < 4; i++) {
@@ -315,7 +333,7 @@ export function createAslive(): Scene {
 
       const foot = el('div', 'a-foot')
       const ctl = el('div', 'a-ctl')
-      button = el('button', 'key', 'Try with your camera')
+      button = el('button', 'key primary', 'Try with your camera')
       button.type = 'button'
       msgEl = el('span', 'a-msg')
       msgEl.setAttribute('aria-live', 'polite')
@@ -329,14 +347,18 @@ export function createAslive(): Scene {
       clear.addEventListener('click', () => { setOutput(''); lastTyped = '' })
       edit.append(back, clear)
       ctl.append(button, edit, el('span', '', 'Runs in your browser. Video never leaves your device.'), msgEl)
-      foot.append(el('p', 'a-pipe', 'camera → 21 landmarks → 63 features → 100 trees → letter'), ctl)
-      demo.append(hand, read, foot)
+      foot.append(ctl, el('p', 'a-pipe', 'camera → 21 landmarks → 63 features → 100 trees → letter'))
+      demo.append(hand, infoEl, read, foot)
 
       section.append(text, demo)
       root.append(section)
 
       ctx = canvas.getContext('2d')!
-      button.addEventListener('click', () => { if (mode === 'camera') stopCamera(); else if (mode === 'replay') void startCamera() })
+      button.addEventListener('click', () => { if (mode === 'camera') stopCamera(); else if (mode === 'chart') void startCamera() })
+      const point = (e: PointerEvent): void => { const box = canvas.getBoundingClientRect(); hover(cellAt(e.clientX - box.left, e.clientY - box.top)) }
+      canvas.addEventListener('pointermove', point)
+      canvas.addEventListener('pointerdown', point)
+      canvas.addEventListener('pointerleave', () => hover(-1))
       if (!navigator.mediaDevices?.getUserMedia) { button.disabled = true; msgEl.textContent = 'This browser has no camera access.' }
       document.addEventListener('palettechange', onPalette)
       document.addEventListener('visibilitychange', onVisibility)
@@ -345,13 +367,6 @@ export function createAslive(): Scene {
       observer.observe(canvas)
       resize()
 
-      if (reduce) {
-        const sample = samples.A[0]
-        shown = toPoints(sample.points)
-        setRows(sample.top, sample.top.map(([, p]) => p), true)
-        setOutput('a')
-        draw()
-      }
     },
     start,
     stop,

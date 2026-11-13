@@ -58,10 +58,15 @@ function solve(paper: Lch, dark: boolean, target: number, start: Lch): Lch {
   return color
 }
 
-export function paletteAt(hour: number): Palette {
+/** A scene's own paper color: hue and strength. Lightness still follows the time of day. */
+export interface Tint { h: number; c: number }
+
+export function paletteAt(hour: number, tint?: Tint): Palette {
   const h = ((hour % 24) + 24) % 24
   const dark = h < 6 || h >= 19.5
-  const paper = dark ? sample(DARK, h < 6 ? h + 24 : h) : sample(LIGHT, h)
+  const base = dark ? sample(DARK, h < 6 ? h + 24 : h) : sample(LIGHT, h)
+  // Dark paper carries less color than light paper, or it reads as a colored light rather than a surface.
+  const paper = tint ? { l: base.l, c: dark ? tint.c * 0.55 : tint.c, h: tint.h } : base
   const ink: Lch = dark ? { l: 0.92, c: 0.02, h: 85 } : { l: 0.2, c: 0.008, h: 85 }
   const soft = solve(paper, dark, 5, { l: dark ? 0.7 : 0.52, c: 0.015, h: 80 })
   const signal = solve(paper, dark, 4.8, { l: dark ? 0.78 : 0.5, c: dark ? 0.13 : 0.12, h: 155 })
