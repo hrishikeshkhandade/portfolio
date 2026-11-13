@@ -1,6 +1,5 @@
-import '../styles/project.css'
 import type { Scene } from '../engine/scene'
-import { site } from '../content/site'
+import { el, projectSection, projectText, workById } from './shell'
 import type { HandStyle } from '../hand/draw'
 import { drawPoints, legibility, toPoints, type Pt2 } from '../aslive/draw'
 import { normalizeLandmarks, parseForest, topK, type Forest } from '../aslive/forest'
@@ -30,15 +29,8 @@ function readStyle(): Required<HandStyle> {
   return { ink: v('--ink'), faint: v('--ink-faint'), paper: v('--paper'), soft: v('--ink-soft'), wash: v('--wash') }
 }
 
-const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string): HTMLElementTagNameMap[K] => {
-  const node = document.createElement(tag)
-  if (cls) node.className = cls
-  if (text !== undefined) node.textContent = text
-  return node
-}
-
 export function createAslive(): Scene {
-  const work = site.work.find((w) => w.id === 'aslive')!
+  const work = workById('aslive')
 
   let section: HTMLElement, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, video: HTMLVideoElement
   let rows: { li: HTMLLIElement; ch: HTMLElement; bar: HTMLElement; p: HTMLElement }[] = []
@@ -284,24 +276,8 @@ export function createAslive(): Scene {
 
   return {
     mount(root) {
-      section = el('section', 'project aslive')
-      section.dataset.scroll = ''
-
-      const text = el('div', 'p-text')
-      text.append(el('p', 'label', 'project'), el('h2', 'p-title', work.name), el('p', 'p-line', work.summary ?? work.line))
-      const stats = el('dl', 'p-stats')
-      for (const s of work.stats ?? []) { const d = el('div'); d.append(el('dt', '', s.value), el('dd', '', s.label)); stats.append(d) }
-      const links = el('p', 'p-links')
-      for (const link of work.links) {
-        const a = el('a', '', `${link.label} ↗`)
-        a.href = link.url
-        a.target = '_blank'
-        a.rel = 'noopener'
-        a.setAttribute('aria-label', `${link.label} (opens in a new tab)`)
-        links.append(a)
-      }
-      text.append(stats, links)
-      if (work.note) text.append(el('p', 'p-note', work.note))
+      section = projectSection('aslive')
+      const text = projectText(work)
 
       const demo = el('div', 'p-demo')
       const hand = el('div', 'hand')

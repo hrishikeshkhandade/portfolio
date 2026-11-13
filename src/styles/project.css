@@ -66,3 +66,56 @@
   .p-demo .hand { aspect-ratio: 5 / 7.2; }
   .a-read { grid-template-columns: minmax(0, 1fr); gap: var(--s4); }
 }
+
+/* ---- shared ---- */
+.key.primary.plain::before { display: none; }
+a.key.primary { text-decoration: none; justify-self: start; padding-left: var(--s5); }
+
+/* ---- Super Scholar ---- */
+.shot { margin: var(--s5) 0 0; width: 100%; display: grid; gap: var(--s2); }
+.shot img {
+  display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
+  image-rendering: pixelated; border-radius: 6px; outline: 1px solid rgba(0, 0, 0, 0.1); outline-offset: -1px;
+  background: var(--wash);
+}
+.shot-bar { display: flex; justify-content: space-between; gap: var(--s4); font-size: var(--t-cap); color: var(--ink-soft); min-height: 1.5em; }
+.shot-cap { color: var(--ink); }
+.thumbs { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--s2); width: 100%; }
+.thumb {
+  padding: 0; border: 0; background: none; cursor: pointer; border-radius: 4px; position: relative;
+  opacity: 0.5; transition: opacity 160ms var(--ease), transform 120ms var(--ease);
+}
+.thumb img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; image-rendering: pixelated; border-radius: 3px; }
+.thumb:hover { opacity: 0.85; }
+.thumb:active { transform: scale(0.97); }
+.thumb[aria-pressed='true'] { opacity: 1; box-shadow: 0 0 0 1px var(--paper), 0 0 0 2px var(--ink); }
+.thumb:focus-visible { outline: 1px solid var(--signal); outline-offset: 3px; opacity: 1; }
+
+/* ---- Chef's Fridge ---- */
+.chef .p-demo { gap: var(--s4); }
+.tabs { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.tab { min-height: 36px; padding: var(--s2) var(--s4); }
+.tab[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.fridge {
+  position: relative; width: 100%; padding: var(--s4);
+  border: 1px solid var(--rule); border-radius: 10px;
+}
+.f-label { margin: var(--s3) 0 calc(-1 * var(--s2)); }
+.shelf { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s5) var(--s3); }
+.chip {
+  font-size: var(--t-cap); color: var(--ink-soft); text-align: center;
+  padding: var(--s2) var(--s2); border: 1px dashed var(--ink-faint); border-radius: 4px;
+  opacity: 0.45; transition: opacity 240ms var(--ease), color 240ms var(--ease), border-color 240ms var(--ease);
+}
+.chip.seen { opacity: 1; color: var(--ink); border-style: solid; border-color: var(--signal); }
+.f-status { margin: 0; font-size: var(--t-cap); color: var(--signal); min-height: 1.5em; }
+.recipe { width: 100%; min-height: 11.5em; }
+.r-title { margin: 0; font-family: var(--serif); font-weight: 400; font-size: var(--t-h2); line-height: 1.2; letter-spacing: -0.015em; min-height: 1.2em; }
+.r-meta { margin: var(--s1) 0 var(--s3); font-size: var(--t-cap); color: var(--ink-soft); min-height: 1.5em; }
+.r-steps { margin: 0; padding-left: 1.4em; font-family: var(--serif); font-size: var(--t-body); line-height: 1.5; display: grid; gap: var(--s1); }
+.r-steps li::marker { font-family: var(--mono); font-size: var(--t-cap); color: var(--ink-soft); }
+
+@media (max-width: 760px) {
+  .thumbs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

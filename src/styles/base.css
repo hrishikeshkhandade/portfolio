@@ -117,3 +117,9 @@ html:not([data-scene='hand']) #seed { visibility: hidden; }
 @keyframes live { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .key.primary::before { animation: none; } }
 @media (max-width: 640px) { .where { visibility: hidden; overflow: hidden; } }
+
+@media (max-width: 640px) {
+  .bottom { grid-template-columns: auto 1fr; column-gap: var(--s4); }
+  .bottom .foot-links { justify-self: end; }
+  .bottom #seed { display: none; }
+}

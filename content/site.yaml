@@ -19,14 +19,63 @@ work:
       - { label: Microsoft Store, url: "https://apps.microsoft.com/detail/9nt9h323f8xv" }
       - { label: Paper, url: "https://laboffuture.odoo.com/aslive-final-research-paper" }
   - name: Super Scholar
+    id: super-scholar
     line: Turns research papers into a playable platformer
     stat: "47-page PDF to game in under 1 s"
+    summary: A retro platformer that turns a dense research paper into worlds you learn by playing. Each section becomes levels, a lesson, practice questions and a boss fight. Upload any PDF, or search 250 million papers.
+    stats:
+      - { value: "5", label: "papers built in, any PDF playable" }
+      - { value: "179", label: "automated tests, 14 play-throughs" }
+      - { value: "500", label: "generated levels proved beatable" }
+    shots:
+      - { file: title, caption: "Title screen" }
+      - { file: level, caption: "Facts from the paper appear as you play" }
+      - { file: lesson, caption: "A lesson from the professor after every level" }
+      - { file: practice, caption: "Practice question, with the answer explained" }
+      - { file: boss, caption: "Boss fight: stomp it, then answer its question" }
+      - { file: challenge, caption: "Later worlds get harder" }
+      - { file: review, caption: "Review mode marks each section known or re-read" }
+      - { file: notebook, caption: "The Scholar's Notebook keeps everything as flashcards" }
     links:
       - { label: Play, url: "https://super-scholar.super-scholar.workers.dev" }
       - { label: Code, url: "https://github.com/hrishikeshkhandade/super-scholar" }
   - name: Chef's Fridge
+    id: chefs-fridge
     line: Fridge photo in, recipes out
     stat: "Gemini 2.0 Flash · 30+ beta users"
+    summary: Photograph your fridge or pantry; the app names what it sees and writes recipes from only those ingredients, by cuisine and diet. Built during a mentorship at Emirates Flight Catering.
+    stats:
+      - { value: "30+", label: "beta testers" }
+      - { value: "40%", label: "faster load after optimizing" }
+      - { value: "2.0", label: "Gemini Flash for vision and recipes" }
+    fridges:
+      - name: Student fridge
+        items: [eggs, cheddar, tortillas, spinach, salsa, onion]
+        recipe:
+          title: Spinach and cheddar breakfast quesadilla
+          meta: "12 min · vegetarian · Mexican"
+          steps:
+            - Soften sliced onion in a pan, add spinach until it wilts.
+            - Scramble the eggs into the pan, then tip onto a tortilla with cheddar.
+            - Fold, crisp both sides, and serve with salsa.
+      - name: Weekend leftovers
+        items: [cooked rice, chicken, bell pepper, soy sauce, garlic, spring onion]
+        recipe:
+          title: Garlic chicken fried rice
+          meta: "15 min · high protein · Asian"
+          steps:
+            - Fry garlic and diced pepper on high heat for a minute.
+            - Add shredded chicken and cold rice; toss until the rice crackles.
+            - Finish with soy sauce and spring onion.
+      - name: Almost empty
+        items: [pasta, tomatoes, butter, garlic, parmesan, basil]
+        recipe:
+          title: Butter-tomato pasta
+          meta: "18 min · vegetarian · Italian"
+          steps:
+            - Boil the pasta; keep a cup of the water.
+            - Melt butter with garlic, add chopped tomatoes and cook down.
+            - Toss pasta in with a splash of water, parmesan and torn basil.
     links:
       - { label: Code, url: "https://github.com/hrishikeshkhandade/Chefs-Fridge" }
 landing:

@@ -37,5 +37,7 @@ document.getElementById('seed')!.textContent = `seed ${seed}`
 const scenes: SceneDef[] = [
   { id: 'hand', title: 'Hand', load: () => createLanding(seed, replay, (id) => stage.go(id)) },
   { id: 'aslive', title: 'ASLive', tint: { h: 150, c: 0.032 }, load: async () => (await import('./scenes/aslive')).createAslive() },
+  { id: 'super-scholar', title: 'Super Scholar', tint: { h: 285, c: 0.03 }, load: async () => (await import('./scenes/super-scholar')).createSuperScholar() },
+  { id: 'chefs-fridge', title: "Chef's Fridge", tint: { h: 58, c: 0.042 }, load: async () => (await import('./scenes/chefs-fridge')).createChefsFridge() },
 ]
 const stage = createStage(document.getElementById('scene')!, document.getElementById('markers')!, document.getElementById('where')!, scenes, document.title)

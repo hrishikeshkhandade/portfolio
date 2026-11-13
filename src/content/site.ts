@@ -12,6 +12,16 @@ export interface Work {
   stats?: { value: string; label: string }[]
   note?: string
   links: Link[]
+  /** Screenshots in public/media/<id>/<file>.png. */
+  shots?: { file: string; caption: string }[]
+  /** Sample runs for the Chef's Fridge scene. */
+  fridges?: Fridge[]
+}
+
+export interface Fridge {
+  name: string
+  items: string[]
+  recipe: { title: string; meta: string; steps: string[] }
 }
 
 export interface SiteContent {
