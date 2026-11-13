@@ -27,24 +27,80 @@ export function createStage(root: HTMLElement, markers: HTMLElement, defs: Scene
     return b
   })
 
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const EASE = 'cubic-bezier(0.77, 0, 0.175, 1)'
+  const OUT = 'cubic-bezier(0.23, 1, 0.32, 1)'
+  let layer: HTMLElement | null = null
+  let shownIndex = -1
+  /** Finishes whatever transition is still running, immediately. */
+  let settle: () => void = () => {}
+
+  /**
+   * Scene change: the old scene lifts away and fades, a hairline carrying the next scene's number
+   * sweeps across the stage, and the new scene is uncovered behind it with its parts rising in turn.
+   */
+  function transition(oldLayer: HTMLElement, oldScene: Scene | null, newLayer: HTMLElement, index: number, dir: 1 | -1): void {
+    const h = root.clientHeight
+    const sweep = document.createElement('div')
+    sweep.className = 'sweep'
+    sweep.textContent = `${String(index + 1).padStart(2, '0')} — ${defs[index].title}`
+    root.append(sweep)
+
+    const from = dir > 0 ? h : 0, to = dir > 0 ? 0 : h
+    const hidden = dir > 0 ? 'inset(100% 0 0 0)' : 'inset(0 0 100% 0)'
+    const animations = [
+      oldLayer.animate([{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: `translateY(${-dir * 28}px)` }], { duration: 260, easing: EASE, fill: 'forwards' }),
+      sweep.animate([{ transform: `translateY(${from}px)`, opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.85 }, { transform: `translateY(${to}px)`, opacity: 0 }], { duration: 620, easing: EASE, fill: 'forwards' }),
+      newLayer.animate([{ clipPath: hidden }, { clipPath: 'inset(0 0 0 0)' }], { duration: 620, easing: EASE, fill: 'backwards' }),
+    ]
+    const parts = [...(newLayer.firstElementChild?.children ?? [])] as HTMLElement[]
+    parts.forEach((part, i) => {
+      animations.push(part.animate([{ opacity: 0, transform: `translateY(${dir * 22}px)` }, { opacity: 1, transform: 'translateY(0)' }], { duration: 520, delay: 200 + i * 70, easing: OUT, fill: 'backwards' }))
+    })
+
+    let done = false
+    settle = () => {
+      if (done) return
+      done = true
+      animations.forEach((a) => a.cancel())
+      oldScene?.destroy()
+      oldLayer.remove()
+      sweep.remove()
+      settle = () => {}
+    }
+    void Promise.all(animations.map((a) => a.finished)).then(settle, () => {})
+  }
+
   async function show(index: number): Promise<void> {
     const mine = ++token
-    current?.stop()
-    current?.destroy()
+    settle()
+    const dir: 1 | -1 = index >= shownIndex ? 1 : -1
+    const oldScene = current, oldLayer = layer
+    oldScene?.stop()
     current = null
-    root.replaceChildren()
     buttons.forEach((b, i) => {
-      b.textContent = i === index ? '[ ]' : `[${i + 1}]`
+      b.textContent = i === index ? '[\u00a0]' : `[${i + 1}]`
       if (i === index) b.setAttribute('aria-current', 'page')
       else b.removeAttribute('aria-current')
     })
     document.title = index === 0 ? baseTitle : `${defs[index].title} — ${baseTitle.split(' — ')[0]}`
     document.documentElement.dataset.scene = defs[index].id
+
     const scene = await defs[index].load()
-    if (mine !== token) return
-    current = scene
-    scene.mount(root)
+    if (mine !== token) { oldScene?.destroy(); oldLayer?.remove(); if (layer === oldLayer) layer = null; return }
+    const newLayer = document.createElement('div')
+    newLayer.className = 'layer'
+    root.append(newLayer)
+    scene.mount(newLayer)
     scene.start()
+    current = scene
+    layer = newLayer
+    const first = shownIndex < 0
+    shownIndex = index
+
+    if (!oldLayer) return
+    if (reduce || first) { oldScene?.destroy(); oldLayer.remove(); return }
+    transition(oldLayer, oldScene, newLayer, index, dir)
   }
 
   const router = createRouter(defs, (index) => {

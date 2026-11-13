@@ -38,7 +38,8 @@
 .a-foot { display: grid; gap: var(--s3); width: 100%; }
 .a-pipe { margin: 0; font-size: var(--t-cap); color: var(--ink-soft); }
 .a-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s4); min-height: 32px; font-size: var(--t-cap); color: var(--ink-soft); }
-.a-ctl .live { color: var(--signal); }
+.a-edit { display: inline-flex; gap: var(--s2); }
+.cap.live { color: var(--signal); }
 
 @media (max-width: 900px) {
   .project {

@@ -91,3 +91,12 @@ body {
 .marker:focus-visible { outline: 1px solid var(--signal); outline-offset: 0; }
 .bottom { grid-template-columns: 1fr auto 1fr; }
 html:not([data-scene='hand']) #seed { visibility: hidden; }
+
+#scene { overflow: hidden; }
+.layer { position: absolute; inset: 0; }
+.sweep {
+  position: absolute; left: 0; right: 0; top: 0; height: 0; z-index: 5; pointer-events: none;
+  border-top: 1px solid var(--ink);
+  padding: var(--s2) var(--s5) 0; font-size: var(--t-cap); color: var(--ink); letter-spacing: 0.04em;
+  white-space: nowrap; overflow: visible;
+}

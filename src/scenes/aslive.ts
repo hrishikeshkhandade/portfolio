@@ -21,7 +21,11 @@ const TRACKER_MODEL = 'https://storage.googleapis.com/mediapipe-models/hand_land
 const FOREST_URL = '/models/aslive-rf.bin'
 
 type Top = [letter: string, probability: number][]
-interface Tracker { detectForVideo(video: HTMLVideoElement, time: number): { landmarks: { x: number; y: number; z: number }[][] }; close(): void }
+type Hand = { x: number; y: number; z: number }[]
+type FromWorker = { type: 'ready' } | { type: 'error'; message: string } | { type: 'hand'; landmarks: Hand | null }
+/** Longest side of the frame sent to the tracker; it downsizes internally anyway. */
+const FRAME_SIDE = 320
+const START_TIMEOUT_MS = 45_000
 
 function readStyle(): HandStyle {
   const s = getComputedStyle(document.documentElement)
@@ -42,7 +46,7 @@ export function createAslive(): Scene {
 
   let section: HTMLElement, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, video: HTMLVideoElement
   let rows: { li: HTMLLIElement; ch: HTMLElement; bar: HTMLElement; p: HTMLElement }[] = []
-  let outEl: HTMLElement, capEl: HTMLElement, msgEl: HTMLElement, button: HTMLButtonElement
+  let outEl: HTMLElement, capEl: HTMLElement, msgEl: HTMLElement, button: HTMLButtonElement, edit: HTMLElement
   let observer: ResizeObserver | null = null
   let style = readStyle()
   let width = 0, height = 0, raf = 0, running = false
@@ -54,8 +58,8 @@ export function createAslive(): Scene {
 
   // camera state
   let mode: 'replay' | 'loading' | 'camera' = 'replay'
-  let stream: MediaStream | null = null, tracker: Tracker | null = null, forest: Forest | null = null
-  let lastVideoTime = -1, streak = 0, streakLabel = '', lastTyped = '', output = ''
+  let stream: MediaStream | null = null, worker: Worker | null = null, forest: Forest | null = null
+  let lastVideoTime = -1, busy = false, streak = 0, streakLabel = '', lastTyped = '', output = ''
 
   function setRows(top: Top, values: number[], chosen: boolean): void {
     rows.forEach((row, i) => {
@@ -97,10 +101,24 @@ export function createAslive(): Scene {
     if (elapsed > MOVE_MS + (last ? WORD_HOLD_MS : HOLD_MS)) { at++; nextLetter(now) }
   }
 
+  /** Sends the newest camera frame to the tracker, one at a time so frames never queue up. */
   function camera(now: number): void {
-    if (!tracker || !forest || video.readyState < 2 || video.currentTime === lastVideoTime) return
+    if (!worker || busy || video.readyState < 2 || video.currentTime === lastVideoTime) return
     lastVideoTime = video.currentTime
-    const hand = tracker.detectForVideo(video, now).landmarks[0]
+    busy = true
+    const k = FRAME_SIDE / Math.max(video.videoWidth, video.videoHeight, 1)
+    const target = worker
+    createImageBitmap(video, { resizeWidth: Math.round(video.videoWidth * k), resizeHeight: Math.round(video.videoHeight * k) })
+      .then((bitmap) => {
+        if (worker === target) target.postMessage({ type: 'frame', bitmap, time: now }, [bitmap])
+        else bitmap.close()
+      })
+      .catch(() => { busy = false })
+  }
+
+  function onHand(hand: Hand | null): void {
+    busy = false
+    if (mode !== 'camera' || !forest) return
     if (!hand) {
       msgEl.textContent = 'Show one hand to the camera.'
       streak = 0
@@ -124,6 +142,23 @@ export function createAslive(): Scene {
       lastTyped = label
       setOutput(output + (label === 'SPACE' ? ' ' : label.toLowerCase()))
     }
+  }
+
+  /** Starts the background tracker and resolves once it has loaded and warmed up. */
+  function startTracker(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const w = new Worker(new URL('../aslive/tracker.worker.ts', import.meta.url), { type: 'module' })
+      worker = w
+      const timer = setTimeout(() => reject(new Error('timeout')), START_TIMEOUT_MS)
+      w.onmessage = (event: MessageEvent<FromWorker>) => {
+        const m = event.data
+        if (m.type === 'ready') { clearTimeout(timer); resolve() }
+        else if (m.type === 'hand') onHand(m.landmarks)
+        else if (mode === 'camera') { busy = false } else { clearTimeout(timer); reject(new Error(m.message)) }
+      }
+      w.onerror = () => { clearTimeout(timer); reject(new Error('worker')) }
+      w.postMessage({ type: 'init', wasm: WASM, model: TRACKER_MODEL })
+    })
   }
 
   function draw(): void {
@@ -153,8 +188,9 @@ export function createAslive(): Scene {
   function stopCamera(note = ''): void {
     stream?.getTracks().forEach((t) => t.stop())
     stream = null
-    tracker?.close()
-    tracker = null
+    worker?.terminate()
+    worker = null
+    busy = false
     video.srcObject = null
     video.hidden = true
     mode = 'replay'
@@ -164,6 +200,7 @@ export function createAslive(): Scene {
     button.textContent = 'Try with your camera'
     capEl.textContent = 'replay · real hands from the training data'
     capEl.classList.remove('live')
+    edit.hidden = true
     msgEl.textContent = note
   }
 
@@ -175,19 +212,11 @@ export function createAslive(): Scene {
       // Ask for the camera first so a refusal costs nothing to download.
       stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
       msgEl.textContent = 'Loading hand tracking and the ASLive model…'
-      const [vision, buffer] = await Promise.all([
-        import('@mediapipe/tasks-vision'),
+      const [buffer] = await Promise.all([
         fetch(FOREST_URL).then((r) => { if (!r.ok) throw new Error('model'); return r.arrayBuffer() }),
+        startTracker(),
       ])
       forest = parseForest(buffer)
-      const files = await vision.FilesetResolver.forVisionTasks(WASM)
-      tracker = await vision.HandLandmarker.createFromOptions(files, {
-        baseOptions: { modelAssetPath: TRACKER_MODEL, delegate: 'GPU' },
-        runningMode: 'VIDEO',
-        numHands: 1,
-        minHandDetectionConfidence: 0.65,
-        minTrackingConfidence: 0.5,
-      })
       if (!stream) return
       video.srcObject = stream
       video.hidden = false
@@ -200,6 +229,7 @@ export function createAslive(): Scene {
       button.textContent = 'Stop camera'
       capEl.textContent = 'live · your hand, the real ASLive model'
       capEl.classList.add('live')
+      edit.hidden = false
       msgEl.textContent = ''
       if (reduce && !running) { running = true; raf = requestAnimationFrame(frame) }
     } catch (error) {
@@ -207,6 +237,15 @@ export function createAslive(): Scene {
       const missing = error instanceof DOMException && (error.name === 'NotFoundError' || error.name === 'OverconstrainedError')
       stopCamera(denied ? 'Camera permission was not given. Replay continues.' : missing ? 'No camera found. Replay continues.' : 'Hand tracking could not start. Replay continues.')
     }
+  }
+
+  /** Removes the last recognized letter. The current sign is not retyped until the hand changes shape. */
+  function backspace(): void {
+    if (mode !== 'camera' || !output) return
+    setOutput(output.slice(0, -1))
+  }
+  const onKey = (e: KeyboardEvent): void => {
+    if (e.key === 'Backspace' && mode === 'camera') { e.preventDefault(); backspace() }
   }
 
   const onPalette = (): void => { style = readStyle(); draw() }
@@ -280,7 +319,16 @@ export function createAslive(): Scene {
       button.type = 'button'
       msgEl = el('span', 'a-msg')
       msgEl.setAttribute('aria-live', 'polite')
-      ctl.append(button, el('span', '', 'Runs in your browser. Video never leaves your device.'), msgEl)
+      edit = el('span', 'a-edit')
+      edit.hidden = true
+      const back = el('button', 'key', '⌫ Backspace')
+      back.type = 'button'
+      back.addEventListener('click', backspace)
+      const clear = el('button', 'key', 'Clear')
+      clear.type = 'button'
+      clear.addEventListener('click', () => { setOutput(''); lastTyped = '' })
+      edit.append(back, clear)
+      ctl.append(button, edit, el('span', '', 'Runs in your browser. Video never leaves your device.'), msgEl)
       foot.append(el('p', 'a-pipe', 'camera → 21 landmarks → 63 features → 100 trees → letter'), ctl)
       demo.append(hand, read, foot)
 
@@ -292,6 +340,7 @@ export function createAslive(): Scene {
       if (!navigator.mediaDevices?.getUserMedia) { button.disabled = true; msgEl.textContent = 'This browser has no camera access.' }
       document.addEventListener('palettechange', onPalette)
       document.addEventListener('visibilitychange', onVisibility)
+      window.addEventListener('keydown', onKey)
       observer = new ResizeObserver(resize)
       observer.observe(canvas)
       resize()
@@ -308,10 +357,11 @@ export function createAslive(): Scene {
     stop,
     destroy() {
       stop()
-      if (stream || tracker) stopCamera()
+      if (stream || worker) stopCamera()
       observer?.disconnect()
       document.removeEventListener('palettechange', onPalette)
       document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('keydown', onKey)
       section.remove()
     },
   }
