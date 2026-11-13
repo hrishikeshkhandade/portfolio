@@ -1,4 +1,4 @@
-import { pick, type Rng } from '../lib/rng'
+import { pick, shuffle, type Rng } from '../lib/rng'
 
 export interface Frame { openers: string[]; middles: string[]; endings: string[] }
 
@@ -22,4 +22,39 @@ export function makeSentence(rng: Rng, frames: Frame[]): string {
     if (roll < 0) { frame = f; break }
   }
   return `${pick(rng, frame.openers)} ${pick(rng, frame.middles)} ${pick(rng, frame.endings)}`
+}
+
+/** How many recent endings a new sentence must avoid. */
+const ENDING_MEMORY = 8
+
+/**
+ * Sentence source with memory: a shuffled deck of every sentence, dealt without replacement.
+ * No sentence repeats until all have been shown. Where the deck allows, a sentence also avoids
+ * the previous sentence's frame and any ending used in the last few sentences.
+ */
+export function createDeck(rng: Rng, frames: Frame[]): () => string {
+  type Card = { text: string; frame: number; ending: string }
+  const build = (): Card[] => {
+    const cards: Card[] = []
+    frames.forEach((f, frame) => {
+      for (const o of f.openers) for (const m of f.middles) for (const ending of f.endings)
+        cards.push({ text: `${o} ${m} ${ending}`, frame, ending })
+    })
+    return shuffle(rng, cards)
+  }
+  let deck = build()
+  let lastFrame = -1
+  const recent: string[] = []
+
+  return () => {
+    if (deck.length === 0) deck = build()
+    let at = deck.findIndex((c) => c.frame !== lastFrame && !recent.includes(c.ending))
+    if (at < 0) at = deck.findIndex((c) => c.frame !== lastFrame)
+    if (at < 0) at = 0
+    const [card] = deck.splice(at, 1)
+    lastFrame = card.frame
+    recent.push(card.ending)
+    if (recent.length > ENDING_MEMORY) recent.shift()
+    return card.text
+  }
 }

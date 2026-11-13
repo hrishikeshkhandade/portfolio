@@ -3,7 +3,7 @@ import type { Scene } from '../engine/scene'
 import { site } from '../content/site'
 import { easeOut } from '../lib/ease'
 import { mulberry32, range, shuffle } from '../lib/rng'
-import { makeSentence } from '../predict/grammar'
+import { createDeck } from '../predict/grammar'
 import { barsAt, leaderAt, planLetter, type LetterPlan } from '../predict/timeline'
 import { drawHand, type HandStyle } from '../hand/draw'
 import { LETTERS, REST } from '../hand/poses'
@@ -35,7 +35,7 @@ export function createLanding(seed: number): Scene {
   const side = rng() < 0.5 ? 'left' : 'right'
   const tilt = range(rng, -6, 6)
   const speed = range(rng, 0.85, 1.2)
-  const frames = site.landing.frames
+  const nextSentence = createDeck(rng, site.landing.frames)
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
 
   let el: HTMLElement
@@ -120,7 +120,7 @@ export function createLanding(seed: number): Scene {
     }
 
     if (idx >= sentence.length) {
-      begin(makeSentence(rng, frames))
+      begin(nextSentence())
       aim(REST, now)
       holdUntil = now + 400
       return
@@ -271,8 +271,8 @@ export function createLanding(seed: number): Scene {
       observer.observe(canvas)
       resize()
 
-      if (reduce) showStill(makeSentence(rng, frames))
-      else begin(makeSentence(rng, frames))
+      if (reduce) showStill(nextSentence())
+      else begin(nextSentence())
     },
     start,
     stop,
