@@ -7,7 +7,7 @@ import { makeSentence } from '../predict/grammar'
 import { barsAt, leaderAt, planLetter, type LetterPlan } from '../predict/timeline'
 import { drawHand, type HandStyle } from '../hand/draw'
 import { LETTERS, REST } from '../hand/poses'
-import { armPoints, landmarks, lerpPose, type Pose, type Pt } from '../hand/skeleton'
+import { landmarks, lerpPose, shell, type Pose } from '../hand/skeleton'
 
 const POSE_MS = 240
 const GAP_MS = 150
@@ -61,7 +61,7 @@ export function createLanding(seed: number): Scene {
 
   let from: Pose = REST, to: Pose = REST, cur: Pose = REST
   let poseStart = 0
-  let pointer: Pt | null = null
+  let pointer: [number, number] | null = null
 
   function aim(target: Pose, now: number): void {
     from = cur
@@ -142,7 +142,15 @@ export function createLanding(seed: number): Scene {
     cur = lerpPose(from, to, easeOut((now - poseStart) / (POSE_MS / speed)))
     ctx.clearRect(0, 0, width, height)
     const posed = { ...cur, rot: cur.rot + tilt }
-    drawHand(ctx, landmarks(posed, mirror), armPoints(posed, mirror), { cx: width / 2, cy: height / 2, scale: Math.min(width / 1.9, height / 2.7), pointer }, style)
+    const sway = reduce ? 0 : now
+    drawHand(ctx, landmarks(posed, mirror), shell(posed, mirror), {
+      cx: width / 2,
+      cy: height / 2,
+      scale: Math.min(width / 1.9, height / 2.7),
+      yaw: (mirror ? 16 : -16) + 5 * Math.sin(sway / 1700),
+      pitch: 9 + 2.5 * Math.sin(sway / 2300),
+      pointer,
+    }, style)
   }
 
   function frame(now: number): void {
