@@ -59,3 +59,15 @@ describe('hand', () => {
     for (let i = 0; i < 21; i++) expect(used.has(i)).toBe(true)
   })
 })
+
+describe('arm', () => {
+  it('gives the wrist width and a forearm below it', async () => {
+    const { armPoints } = await import('../src/hand/skeleton')
+    const arm = armPoints(LETTERS.B)
+    expect(arm).toHaveLength(4)
+    expect(arm[1][0] - arm[0][0]).toBeGreaterThan(0.4)
+    expect(arm[2][1]).toBeLessThan(-0.3)
+    const mirrored = armPoints(LETTERS.B, true)
+    expect(mirrored[0][0]).toBeCloseTo(-arm[0][0], 9)
+  })
+})

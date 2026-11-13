@@ -7,7 +7,7 @@ import { makeSentence } from '../predict/grammar'
 import { barsAt, leaderAt, planLetter, type LetterPlan } from '../predict/timeline'
 import { drawHand, type HandStyle } from '../hand/draw'
 import { LETTERS, REST } from '../hand/poses'
-import { landmarks, lerpPose, type Pose, type Pt } from '../hand/skeleton'
+import { armPoints, landmarks, lerpPose, type Pose, type Pt } from '../hand/skeleton'
 
 const POSE_MS = 240
 const GAP_MS = 150
@@ -26,6 +26,7 @@ function readStyle(): HandStyle {
     ink: s.getPropertyValue('--ink').trim(),
     faint: s.getPropertyValue('--ink-faint').trim(),
     paper: s.getPropertyValue('--paper').trim(),
+    flesh: s.getPropertyValue('--flesh').trim(),
   }
 }
 
@@ -140,8 +141,8 @@ export function createLanding(seed: number): Scene {
   function draw(now: number): void {
     cur = lerpPose(from, to, easeOut((now - poseStart) / (POSE_MS / speed)))
     ctx.clearRect(0, 0, width, height)
-    const pts = landmarks({ ...cur, rot: cur.rot + tilt }, mirror)
-    drawHand(ctx, pts, { cx: width / 2, cy: height / 2, scale: Math.min(width / 1.9, height / 2.5), pointer }, style)
+    const posed = { ...cur, rot: cur.rot + tilt }
+    drawHand(ctx, landmarks(posed, mirror), armPoints(posed, mirror), { cx: width / 2, cy: height / 2, scale: Math.min(width / 1.9, height / 2.7), pointer }, style)
   }
 
   function frame(now: number): void {

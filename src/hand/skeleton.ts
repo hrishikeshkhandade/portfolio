@@ -66,6 +66,10 @@ export function landmarks(pose: Pose, mirror = false): Pt[] {
     }
   }
 
+  return place(pts, pose, mirror)
+}
+
+function place(pts: Pt[], pose: Pose, mirror: boolean): Pt[] {
   const theta = -pose.rot * RAD
   const cos = Math.cos(theta), sin = Math.sin(theta)
   return pts.map(([px, py]): Pt => {
@@ -73,6 +77,13 @@ export function landmarks(pose: Pose, mirror = false): Pt[] {
     const rx = PIVOT[0] + dx * cos - dy * sin, ry = PIVOT[1] + dx * sin + dy * cos
     return [mirror ? -rx || 0 : rx, ry || 0]
   })
+}
+
+const ARM: Pt[] = [[-0.25, 0.04], [0.27, 0.0], [0.24, -0.5], [-0.22, -0.5]]
+
+/** Wrist corners and forearm ends [wrist thumb-side, wrist pinky-side, arm pinky-side, arm thumb-side]. */
+export function armPoints(pose: Pose, mirror = false): Pt[] {
+  return place(ARM, pose, mirror)
 }
 
 export function lerpPose(a: Pose, b: Pose, t: number): Pose {

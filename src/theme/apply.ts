@@ -27,6 +27,7 @@ export function applyPalette(mode: Mode = getMode(), now: Date = new Date()): Pa
   s.setProperty('--ink-faint', css(p.ink, 0.24))
   s.setProperty('--rule', css(p.ink, 0.18))
   s.setProperty('--wash', css(p.ink, 0.06))
+  s.setProperty('--flesh', css({ ...p.paper, l: p.paper.l + (p.dark ? 0.055 : -0.05) }))
   s.setProperty('--signal', css(p.signal))
   s.setProperty('color-scheme', p.dark ? 'dark' : 'light')
   document.dispatchEvent(new CustomEvent('palettechange'))
