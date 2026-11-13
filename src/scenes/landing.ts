@@ -4,6 +4,7 @@ import { site } from '../content/site'
 import { easeOut } from '../lib/ease'
 import { mulberry32, range, shuffle } from '../lib/rng'
 import { createDeck } from '../predict/grammar'
+import { browserStore, createRememberedDeck } from '../predict/memory'
 import { barsAt, leaderAt, planLetter, type LetterPlan } from '../predict/timeline'
 import { drawHand, type HandStyle } from '../hand/draw'
 import { LETTERS, REST } from '../hand/poses'
@@ -29,13 +30,16 @@ function readStyle(): HandStyle {
   }
 }
 
-export function createLanding(seed: number): Scene {
+export function createLanding(seed: number, replay = false): Scene {
   const rng = mulberry32(seed)
   const mirror = rng() < 0.5
   const side = rng() < 0.5 ? 'left' : 'right'
   const tilt = range(rng, -6, 6)
   const speed = range(rng, 0.85, 1.2)
-  const nextSentence = createDeck(rng, site.landing.frames)
+  // A seed in the address replays one exact run; otherwise the deck continues from this device's last visit.
+  const nextSentence = replay
+    ? createDeck(rng, site.landing.frames)
+    : createRememberedDeck(site.landing.frames, browserStore())
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
 
   let el: HTMLElement

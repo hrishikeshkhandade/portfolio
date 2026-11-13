@@ -17,9 +17,10 @@ showMode(getMode())
 modeBtn.addEventListener('click', () => showMode(cycleMode()))
 
 const param = Number(new URLSearchParams(location.search).get('seed'))
-const seed = Number.isInteger(param) && param > 0 ? param : randomSeed()
+const replay = Number.isInteger(param) && param > 0
+const seed = replay ? param : randomSeed()
 document.getElementById('seed')!.textContent = `seed ${seed}`
 
-const landing = createLanding(seed)
+const landing = createLanding(seed, replay)
 landing.mount(document.getElementById('scene')!)
 landing.start()
