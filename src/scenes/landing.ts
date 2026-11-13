@@ -5,7 +5,7 @@ import { easeOut } from '../lib/ease'
 import { mulberry32, range, shuffle } from '../lib/rng'
 import { makeSentence } from '../predict/grammar'
 import { barsAt, leaderAt, planLetter, type LetterPlan } from '../predict/timeline'
-import { drawHand, type HandStyle } from '../hand/draw'
+import { drawHand, fit, type HandStyle } from '../hand/draw'
 import { LETTERS, REST } from '../hand/poses'
 import { landmarks, lerpPose, shell, type Pose } from '../hand/skeleton'
 
@@ -16,6 +16,8 @@ const SPACE_MS = 120
 const CHOSEN_AT = 0.72
 const END_HOLD_MS = 2600
 const MAX_WORD = 16
+/** Minimum gap in CSS pixels between the hand and the edge of its frame. */
+const FRAME_PAD = 22
 
 const isLetter = (ch: string): boolean => /[a-z]/i.test(ch)
 const matchCase = (letter: string, like: string): string => (like === like.toLowerCase() ? letter.toLowerCase() : letter)
@@ -143,14 +145,17 @@ export function createLanding(seed: number): Scene {
     ctx.clearRect(0, 0, width, height)
     const posed = { ...cur, rot: cur.rot + tilt }
     const sway = reduce ? 0 : now
-    drawHand(ctx, landmarks(posed, mirror), shell(posed, mirror), {
+    const pts = landmarks(posed, mirror)
+    const body = shell(posed, mirror)
+    const view = fit([...pts, ...body.arm], {
       cx: width / 2,
       cy: height / 2,
-      scale: Math.min(width / 1.9, height / 2.7),
-      yaw: (mirror ? 16 : -16) + 5 * Math.sin(sway / 1700),
-      pitch: 9 + 2.5 * Math.sin(sway / 2300),
-      pointer,
-    }, style)
+      scale: Math.min(width / 1.9, height / 2.8),
+      yaw: (mirror ? 9 : -9) + 4 * Math.sin(sway / 1700),
+      pitch: 5 + 2 * Math.sin(sway / 2300),
+      pointer: null,
+    }, width, height, FRAME_PAD)
+    drawHand(ctx, pts, body, { ...view, pointer }, style)
   }
 
   function frame(now: number): void {

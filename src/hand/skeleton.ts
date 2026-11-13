@@ -91,7 +91,7 @@ export function landmarks(pose: Pose, mirror = false): P3[] {
 const PALM: P3[] = [
   [-0.25, 0.02, 0], [-0.41, 0.3, 0], [-0.38, 0.93, 0], [-0.03, 1.03, 0], [0.21, 0.98, 0], [0.49, 0.85, 0], [0.31, 0, 0],
 ]
-const ARM: P3[] = [[-0.25, 0.02, 0], [0.31, 0, 0], [0.28, -0.6, 0], [-0.23, -0.6, 0]]
+const ARM: P3[] = [[-0.25, 0.02, 0], [0.31, 0, 0], [0.29, -0.38, 0], [-0.24, -0.38, 0]]
 
 /** Palm outline and forearm quad [wrist thumb-side, wrist pinky-side, arm pinky-side, arm thumb-side]. */
 export function shell(pose: Pose, mirror = false): { palm: P3[]; arm: P3[] } {

@@ -82,3 +82,24 @@ describe('hand', () => {
     expect(near[2]).toBeGreaterThan(far[2])
   })
 })
+
+describe('fit', () => {
+  it('keeps every letter inside the frame, including sideways and downward ones', async () => {
+    const { fit } = await import('../src/hand/draw')
+    const W = 320, H = 400, PAD = 22
+    for (const ch of AZ) for (const mirror of [false, true]) for (const tilt of [-6, 6]) {
+      const pose = { ...LETTERS[ch], rot: LETTERS[ch].rot + tilt }
+      const all = [...landmarks(pose, mirror), ...shell(pose, mirror).arm]
+      const view = fit(all, { cx: W / 2, cy: H / 2, scale: 190, yaw: mirror ? 13 : -13, pitch: 7, pointer: null }, W, H, PAD)
+      for (const [x, y] of project(all, view)) {
+        expect(x, `${ch} x`).toBeGreaterThanOrEqual(PAD - 0.01); expect(x, `${ch} x`).toBeLessThanOrEqual(W - PAD + 0.01)
+        expect(y, `${ch} y`).toBeGreaterThanOrEqual(PAD - 0.01); expect(y, `${ch} y`).toBeLessThanOrEqual(H - PAD + 0.01)
+      }
+    }
+  })
+  it('leaves a hand that already fits untouched', async () => {
+    const { fit } = await import('../src/hand/draw')
+    const view = { cx: 500, cy: 500, scale: 60, yaw: 0, pitch: 0, pointer: null }
+    expect(fit(landmarks(LETTERS.B), view, 1000, 1000, 20)).toEqual(view)
+  })
+})

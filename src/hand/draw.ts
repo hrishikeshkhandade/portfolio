@@ -22,10 +22,6 @@ const CAMERA = 7
 const CENTER_Y = 0.55
 const REACH = 140
 const LEAN = 5
-const OUTLINE = 1.25
-/** Width of each digit at its base, in hand units: thumb, index, middle, ring, pinky. */
-const GIRTH = [0.25, 0.2, 0.21, 0.195, 0.165]
-const TAPER = [1, 0.9, 0.8]
 
 export function project(pts: P3[], view: HandView): Screen[] {
   const cy = Math.cos(view.yaw * RAD), sy = Math.sin(view.yaw * RAD)
@@ -55,16 +51,21 @@ function path(ctx: CanvasRenderingContext2D, pts: Screen[], close: boolean): voi
   if (close) ctx.closePath()
 }
 
-/** One outlined, filled limb segment: a wide ink stroke with a slightly narrower fill stroke on top. */
-function capsule(ctx: CanvasRenderingContext2D, a: Screen, b: Screen, width: number, style: HandStyle): void {
-  for (const [color, w] of [[style.ink, width + OUTLINE * 2], [style.flesh, width]] as const) {
-    ctx.strokeStyle = color
-    ctx.lineWidth = w
-    ctx.beginPath()
-    ctx.moveTo(a[0], a[1])
-    ctx.lineTo(b[0], b[1])
-    ctx.stroke()
-  }
+/** Bones that run inside the palm; drawn faint because the palm outline already carries the shape. */
+const INNER = new Set([0, 4, 8, 12, 16, 20])
+
+/**
+ * Shrinks and shifts a view so every given point stays inside the canvas with some padding.
+ * Returns the view unchanged when the hand already fits.
+ */
+export function fit(points: P3[], view: HandView, width: number, height: number, pad: number): HandView {
+  const flat = project(points, { ...view, cx: 0, cy: 0, scale: 1, pointer: null })
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+  for (const [x, y] of flat) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y) }
+  const scale = Math.min(view.scale, (width - pad * 2) / (maxX - minX), (height - pad * 2) / (maxY - minY))
+  const clamp = (center: number, lo: number, hi: number, size: number): number =>
+    Math.min(size - pad - hi * scale, Math.max(pad - lo * scale, center))
+  return { ...view, scale, cx: clamp(view.cx, minX, maxX, width), cy: clamp(view.cy, minY, maxY, height) }
 }
 
 export function drawHand(
@@ -79,13 +80,14 @@ export function drawHand(
   const arm = project(shell.arm, view)
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
+  ctx.lineWidth = 1
 
-  // Forearm: filled, with only its two long sides inked so it runs off toward the elbow.
+  // Palm and wrist: a quiet filled shape so the hand has a body, plus two forearm lines.
+  path(ctx, palm, true)
   ctx.fillStyle = style.flesh
-  path(ctx, arm, true)
   ctx.fill()
-  ctx.strokeStyle = style.ink
-  ctx.lineWidth = OUTLINE
+  ctx.strokeStyle = style.faint
+  ctx.stroke()
   for (const [a, b] of [[arm[0], arm[3]], [arm[1], arm[2]]]) {
     ctx.beginPath()
     ctx.moveTo(a[0], a[1])
@@ -93,48 +95,39 @@ export function drawHand(
     ctx.stroke()
   }
 
-  // Digits behind the palm plane first, then the palm, then digits in front, each far-to-near.
-  const digits = [0, 1, 2, 3, 4].map((d) => {
-    const start = 1 + d * 4
-    const joints = [p[start], p[start + 1], p[start + 2], p[start + 3]]
-    return { d, joints, depth: (joints[1][2] + joints[2][2] + joints[3][2]) / 3 }
-  }).sort((a, b) => a.depth - b.depth)
-  const palmDepth = palm.reduce((s, q) => s + q[2], 0) / palm.length
-
-  const drawDigit = ({ d, joints }: (typeof digits)[number]): void => {
-    const segs = [0, 1, 2].map((j) => ({ a: joints[j], b: joints[j + 1], w: GIRTH[d] * TAPER[j] * view.scale }))
-    if (joints[3][2] < joints[0][2]) segs.reverse()
-    for (const s of segs) capsule(ctx, s.a, s.b, s.w, style)
-  }
-  const drawPalm = (): void => {
-    path(ctx, palm, true)
-    ctx.fillStyle = style.flesh
-    ctx.fill()
-    ctx.strokeStyle = style.ink
-    ctx.lineWidth = OUTLINE
-    ctx.stroke()
-  }
-
-  let palmDrawn = false
-  for (const digit of digits) {
-    if (!palmDrawn && digit.depth >= palmDepth - 0.02) { drawPalm(); palmDrawn = true }
-    drawDigit(digit)
-  }
-  if (!palmDrawn) drawPalm()
-
-  // Tracking overlay: the 21 landmarks and their links.
-  ctx.lineWidth = 1
-  ctx.strokeStyle = style.faint
-  for (const [a, b] of BONES) {
+  // Bones, far to near, so a finger in front crosses over one behind.
+  const bones = BONES.map(([a, b], i) => ({ a, b, i, depth: (p[a][2] + p[b][2]) / 2 })).sort((x, y) => x.depth - y.depth)
+  for (const { a, b, i } of bones) {
+    if (INNER.has(i)) {
+      ctx.strokeStyle = style.faint
+      ctx.lineWidth = 1
+    } else {
+      // A paper-colored halo under each finger bone keeps overlapping fingers legible.
+      ctx.strokeStyle = style.paper
+      ctx.lineWidth = 5
+      ctx.beginPath()
+      ctx.moveTo(p[a][0], p[a][1])
+      ctx.lineTo(p[b][0], p[b][1])
+      ctx.stroke()
+      ctx.strokeStyle = style.ink
+      ctx.lineWidth = 1.25
+    }
     ctx.beginPath()
     ctx.moveTo(p[a][0], p[a][1])
     ctx.lineTo(p[b][0], p[b][1])
     ctx.stroke()
   }
-  ctx.fillStyle = style.ink
-  for (const [x, y] of p) {
+
+  // Landmarks, far to near; nearer ones slightly larger.
+  ctx.lineWidth = 1.25
+  ctx.strokeStyle = style.ink
+  ctx.fillStyle = style.paper
+  const order = p.map((q, i) => ({ q, i })).sort((x, y) => x.q[2] - y.q[2])
+  for (const { q, i } of order) {
+    const r = (i === 0 ? 3.6 : 3) * (1 + Math.max(-0.2, Math.min(0.35, q[2] * 0.45)))
     ctx.beginPath()
-    ctx.arc(x, y, 1.8, 0, Math.PI * 2)
+    ctx.arc(q[0], q[1], r, 0, Math.PI * 2)
     ctx.fill()
+    ctx.stroke()
   }
 }
