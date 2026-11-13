@@ -5,9 +5,9 @@ import { easeOut } from '../lib/ease'
 import { mulberry32, range, shuffle } from '../lib/rng'
 import { makeSentence } from '../predict/grammar'
 import { barsAt, leaderAt, planLetter, type LetterPlan } from '../predict/timeline'
-import { drawHand, fit, type HandStyle } from '../hand/draw'
+import { drawHand, type HandStyle } from '../hand/draw'
 import { LETTERS, REST } from '../hand/poses'
-import { landmarks, lerpPose, shell, type Pose } from '../hand/skeleton'
+import { landmarks, lerpPose, type Pose, type Pt } from '../hand/skeleton'
 
 const POSE_MS = 240
 const GAP_MS = 150
@@ -16,8 +16,6 @@ const SPACE_MS = 120
 const CHOSEN_AT = 0.72
 const END_HOLD_MS = 2600
 const MAX_WORD = 16
-/** Minimum gap in CSS pixels between the hand and the edge of its frame. */
-const FRAME_PAD = 22
 
 const isLetter = (ch: string): boolean => /[a-z]/i.test(ch)
 const matchCase = (letter: string, like: string): string => (like === like.toLowerCase() ? letter.toLowerCase() : letter)
@@ -28,7 +26,6 @@ function readStyle(): HandStyle {
     ink: s.getPropertyValue('--ink').trim(),
     faint: s.getPropertyValue('--ink-faint').trim(),
     paper: s.getPropertyValue('--paper').trim(),
-    flesh: s.getPropertyValue('--flesh').trim(),
   }
 }
 
@@ -63,7 +60,7 @@ export function createLanding(seed: number): Scene {
 
   let from: Pose = REST, to: Pose = REST, cur: Pose = REST
   let poseStart = 0
-  let pointer: [number, number] | null = null
+  let pointer: Pt | null = null
 
   function aim(target: Pose, now: number): void {
     from = cur
@@ -143,19 +140,8 @@ export function createLanding(seed: number): Scene {
   function draw(now: number): void {
     cur = lerpPose(from, to, easeOut((now - poseStart) / (POSE_MS / speed)))
     ctx.clearRect(0, 0, width, height)
-    const posed = { ...cur, rot: cur.rot + tilt }
-    const sway = reduce ? 0 : now
-    const pts = landmarks(posed, mirror)
-    const body = shell(posed, mirror)
-    const view = fit([...pts, ...body.arm], {
-      cx: width / 2,
-      cy: height / 2,
-      scale: Math.min(width / 1.9, height / 2.8),
-      yaw: (mirror ? 9 : -9) + 4 * Math.sin(sway / 1700),
-      pitch: 5 + 2 * Math.sin(sway / 2300),
-      pointer: null,
-    }, width, height, FRAME_PAD)
-    drawHand(ctx, pts, body, { ...view, pointer }, style)
+    const pts = landmarks({ ...cur, rot: cur.rot + tilt }, mirror)
+    drawHand(ctx, pts, { cx: width / 2, cy: height / 2, scale: Math.min(width / 1.9, height / 2.5), pointer }, style)
   }
 
   function frame(now: number): void {

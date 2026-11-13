@@ -1,41 +1,30 @@
 import { lerp } from '../lib/ease'
 
-/** Point in hand space: x toward the pinky, y toward the fingertips, z toward the viewer (out of the palm). */
-export type P3 = [number, number, number]
-/** Flexion in degrees at the knuckle, middle joint and end joint. */
-export type Flex = [number, number, number]
-
-export interface Thumb {
-  /** Degrees the thumb swings away from the fingers, in the plane of the palm. */
-  az: number
-  /** Degrees the thumb lifts out of the palm toward the viewer. */
-  el: number
-  /** Degrees each thumb joint bends across the palm. */
-  bend: number
-}
+export type Pt = [number, number]
 
 export interface Pose {
-  /** [index, middle, ring, pinky] */
-  fingers: [Flex, Flex, Flex, Flex]
-  /** 0 together, 1 wide, negative crosses fingers. */
+  /** Flexion per finger [index, middle, ring, pinky]: 0 straight, 1 fist. */
+  curl: [number, number, number, number]
+  /** Finger spread: 0 together, 1 wide, negative crosses fingers. */
   spread: number
-  thumb: Thumb
-  /** Whole-hand roll in degrees, clockwise positive. */
+  /** Thumb direction in degrees from straight up (negative = away from palm) and its flexion. */
+  thumb: { angle: number; curl: number }
+  /** Whole-hand rotation in degrees, clockwise positive. */
   rot: number
 }
 
 const RAD = Math.PI / 180
-const KNUCKLE: P3[] = [[-0.27, 0.95, 0], [-0.03, 1.0, 0], [0.2, 0.95, 0], [0.4, 0.84, 0]]
-const LENGTH = [[0.4, 0.25, 0.21], [0.45, 0.29, 0.22], [0.42, 0.27, 0.22], [0.33, 0.19, 0.19]]
-const BASE_ANGLE = [-5, 0, 5, 11]
-const SPREAD_ANGLE = [-13, -3, 7, 17]
-const THUMB_ROOT: P3 = [-0.3, 0.2, 0.06]
-const THUMB_LENGTH = [0.4, 0.3, 0.26]
-const PIVOT_Y = 0.5
-
-const norm = (v: P3): P3 => { const m = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / m, v[1] / m, v[2] / m] }
-/** Direction the thumb curls toward: across the palm, slightly down and forward. */
-const ACROSS_PALM = norm([0.85, -0.25, 0.45])
+const KNUCKLE: Pt[] = [[-0.3, 0.92], [-0.08, 1.0], [0.13, 0.95], [0.32, 0.82]]
+const LENGTH = [[0.42, 0.26, 0.2], [0.46, 0.3, 0.22], [0.42, 0.27, 0.2], [0.32, 0.2, 0.17]]
+const BASE_ANGLE = [-8, -2, 5, 12]
+const SPREAD_ANGLE = [-14, -4, 6, 16]
+const FLEX = [80, 100, 70]
+const THUMB_ROOT: Pt = [-0.34, 0.28]
+const THUMB_LENGTH = [0.27, 0.22, 0.18]
+/** Oblique projection of depth (toward the viewer) onto the page. */
+const DEPTH_X = -0.28
+const DEPTH_Y = -0.34
+const PIVOT: Pt = [0, 0.5]
 
 export const BONES: [number, number][] = [
   [0, 1], [1, 2], [2, 3], [3, 4],
@@ -45,66 +34,54 @@ export const BONES: [number, number][] = [
   [13, 17], [17, 18], [18, 19], [19, 20],
   [0, 17],
 ]
+/** Bones across the palm, drawn fainter. */
+export const PALM_BONES = new Set([8, 12, 16])
 
-function place(pts: P3[], pose: Pose, mirror: boolean): P3[] {
-  const theta = -pose.rot * RAD
-  const cos = Math.cos(theta), sin = Math.sin(theta)
-  return pts.map(([px, py, pz]): P3 => {
-    const dy = py - PIVOT_Y
-    const rx = px * cos - dy * sin, ry = PIVOT_Y + px * sin + dy * cos
-    return [mirror ? -rx || 0 : rx, ry || 0, pz]
-  })
-}
+export function landmarks(pose: Pose, mirror = false): Pt[] {
+  const pts: Pt[] = [[0, 0]]
 
-/** 21 landmarks in MediaPipe order: 0 wrist, 1-4 thumb, 5-8 index, 9-12 middle, 13-16 ring, 17-20 pinky. */
-export function landmarks(pose: Pose, mirror = false): P3[] {
-  const pts: P3[] = [[0, 0, 0]]
-
-  const az = pose.thumb.az * RAD, el = pose.thumb.el * RAD
-  const d0: P3 = [-Math.sin(az) * Math.cos(el), Math.cos(az) * Math.cos(el), Math.sin(el)]
-  const dot = d0[0] * ACROSS_PALM[0] + d0[1] * ACROSS_PALM[1] + d0[2] * ACROSS_PALM[2]
-  const u = norm([ACROSS_PALM[0] - dot * d0[0], ACROSS_PALM[1] - dot * d0[1], ACROSS_PALM[2] - dot * d0[2]])
-  let p: P3 = [...THUMB_ROOT]
-  pts.push(p)
-  THUMB_LENGTH.forEach((len, k) => {
-    const t = k * pose.thumb.bend * RAD
-    const c = Math.cos(t), s = Math.sin(t)
-    p = [p[0] + (c * d0[0] + s * u[0]) * len, p[1] + (c * d0[1] + s * u[1]) * len, p[2] + (c * d0[2] + s * u[2]) * len]
-    pts.push(p)
-  })
+  let [x, y] = THUMB_ROOT
+  pts.push([x, y])
+  let angle = pose.thumb.angle
+  for (const len of THUMB_LENGTH) {
+    const drawn = len * (1 - 0.35 * pose.thumb.curl)
+    x += Math.sin(angle * RAD) * drawn
+    y += Math.cos(angle * RAD) * drawn
+    pts.push([x, y])
+    angle += 18 + 30 * pose.thumb.curl
+  }
 
   for (let f = 0; f < 4; f++) {
-    let q: P3 = [...KNUCKLE[f]]
-    pts.push(q)
-    const side = (BASE_ANGLE[f] + SPREAD_ANGLE[f] * pose.spread) * RAD
+    let [fx, fy] = KNUCKLE[f]
+    pts.push([fx, fy])
+    const dir = (BASE_ANGLE[f] + SPREAD_ANGLE[f] * pose.spread) * RAD
     let flex = 0
     for (let j = 0; j < 3; j++) {
-      flex += pose.fingers[f][j] * RAD
-      const len = LENGTH[f][j], flat = Math.cos(flex)
-      q = [q[0] + Math.sin(side) * flat * len, q[1] + Math.cos(side) * flat * len, q[2] + Math.sin(flex) * len]
-      pts.push(q)
+      flex += pose.curl[f] * FLEX[j] * RAD
+      const drawn = LENGTH[f][j] * Math.cos(flex)
+      const depth = LENGTH[f][j] * Math.sin(flex)
+      fx += Math.sin(dir) * drawn + depth * DEPTH_X
+      fy += Math.cos(dir) * drawn + depth * DEPTH_Y
+      pts.push([fx, fy])
     }
   }
-  return place(pts, pose, mirror)
-}
 
-const PALM: P3[] = [
-  [-0.25, 0.02, 0], [-0.41, 0.3, 0], [-0.38, 0.93, 0], [-0.03, 1.03, 0], [0.21, 0.98, 0], [0.49, 0.85, 0], [0.31, 0, 0],
-]
-const ARM: P3[] = [[-0.25, 0.02, 0], [0.31, 0, 0], [0.29, -0.38, 0], [-0.24, -0.38, 0]]
-
-/** Palm outline and forearm quad [wrist thumb-side, wrist pinky-side, arm pinky-side, arm thumb-side]. */
-export function shell(pose: Pose, mirror = false): { palm: P3[]; arm: P3[] } {
-  return { palm: place(PALM, pose, mirror), arm: place(ARM, pose, mirror) }
+  const theta = -pose.rot * RAD
+  const cos = Math.cos(theta), sin = Math.sin(theta)
+  return pts.map(([px, py]): Pt => {
+    const dx = px - PIVOT[0], dy = py - PIVOT[1]
+    const rx = PIVOT[0] + dx * cos - dy * sin, ry = PIVOT[1] + dx * sin + dy * cos
+    return [mirror ? -rx || 0 : rx, ry || 0]
+  })
 }
 
 export function lerpPose(a: Pose, b: Pose, t: number): Pose {
   if (t <= 0) return a
   if (t >= 1) return b
   return {
-    fingers: a.fingers.map((f, i) => f.map((v, j) => lerp(v, b.fingers[i][j], t))) as Pose['fingers'],
+    curl: [0, 1, 2, 3].map((i) => lerp(a.curl[i], b.curl[i], t)) as Pose['curl'],
     spread: lerp(a.spread, b.spread, t),
-    thumb: { az: lerp(a.thumb.az, b.thumb.az, t), el: lerp(a.thumb.el, b.thumb.el, t), bend: lerp(a.thumb.bend, b.thumb.bend, t) },
+    thumb: { angle: lerp(a.thumb.angle, b.thumb.angle, t), curl: lerp(a.thumb.curl, b.thumb.curl, t) },
     rot: lerp(a.rot, b.rot, t),
   }
 }
