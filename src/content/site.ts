@@ -14,6 +14,12 @@ export interface Work {
   links: Link[]
   /** Screenshots in public/media/<id>/<file>.png. */
   shots?: { file: string; caption: string }[]
+  /** The playable taste of Super Scholar: two facts and one question from a real paper. */
+  mini?: {
+    paper: string
+    facts: { block: string; stomp: string }
+    question: { text: string; options: string[]; answer: number; explain: string }
+  }
   /** Sample runs for the Chef's Fridge scene. */
   fridges?: Fridge[]
 }

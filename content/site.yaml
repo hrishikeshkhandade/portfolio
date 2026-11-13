@@ -27,6 +27,19 @@ work:
       - { value: "5", label: "papers built in, any PDF playable" }
       - { value: "179", label: "automated tests, 14 play-throughs" }
       - { value: "500", label: "generated levels proved beatable" }
+    mini:
+      paper: "Attention Is All You Need (2017)"
+      facts:
+        block: The Transformer drops recurrence completely. It reads a whole sentence at once using only attention.
+        stomp: Because nothing waits on the previous word, Transformers train in parallel, far faster than older models.
+      question:
+        text: What does self-attention let each word do?
+        options:
+          - Look at every other word in the sentence at once
+          - Read the words strictly one after another
+          - Ignore the order of the words entirely
+        answer: 0
+        explain: Self-attention connects every position to every other in one step. Word order is kept by adding position signals.
     shots:
       - { file: title, caption: "Title screen" }
       - { file: level, caption: "Facts from the paper appear as you play" }
