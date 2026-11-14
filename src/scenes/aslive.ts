@@ -1,7 +1,7 @@
 import type { Scene } from '../engine/scene'
 import { el, projectSection, projectText, workById } from './shell'
 import type { HandStyle } from '../hand/draw'
-import { drawPoints, legibility, toPoints, type Pt2 } from '../aslive/draw'
+import { drawPoints, fitScale, legibility, toPoints, type Pt2 } from '../aslive/draw'
 import { normalizeLandmarks, parseForest, topK, type Forest } from '../aslive/forest'
 import { samples } from '../aslive/samples'
 
@@ -164,7 +164,13 @@ export function createAslive(): Scene {
 
   function draw(): void {
     ctx.clearRect(0, 0, width, height)
-    if (mode === 'camera') drawPoints(ctx, shown, { x: 0, y: 0, w: width, h: height }, style, 3, Math.min(width, height) / (palm * 4.4))
+    if (mode === 'camera') {
+      // Palm size keeps the hand steady as fingers move, but a hand turned edge-on has a short palm and
+      // would blow up past the frame; never draw it larger than what fits the box.
+      const pad = 14
+      const box = { x: pad, y: pad, w: Math.max(1, width - 2 * pad), h: Math.max(1, height - 2 * pad) }
+      drawPoints(ctx, shown, box, style, 3, Math.min(Math.min(width, height) / (palm * 4.4), fitScale(shown, box, 1)))
+    }
     else drawChart()
   }
 
