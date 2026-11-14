@@ -164,3 +164,7 @@ a.key.primary { text-decoration: none; justify-self: start; padding-left: var(--
   color: var(--paper); background: var(--ink); border-radius: 3px;
 }
 @media (max-width: 760px) { .thumbs { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+.f-live { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s4); width: 100%; }
+.f-note { font-size: var(--t-cap); color: var(--ink-soft); max-width: 40ch; }
+.chef .recipe { min-height: 10em; }
