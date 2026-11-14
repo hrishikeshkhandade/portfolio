@@ -1,0 +1,134 @@
+wordmark: Hrishikesh Khandade
+status: CS at UIUC · open to Summer 2027 internships
+links:
+  - { label: GitHub, url: "https://github.com/hrishikeshkhandade" }
+  - { label: LinkedIn, url: "https://www.linkedin.com/in/hrishikeshkhandade" }
+work:
+  - name: ASLive
+    id: aslive
+    line: Real-time ASL fingerspelling translator
+    stat: "90% accuracy · under 100 ms"
+    summary: Reads American Sign Language fingerspelling from a webcam and turns it into text, entirely on your own device. Built as a two-person team; published research paper.
+    stats:
+      - { value: "90%", label: "classification accuracy" }
+      - { value: "<100 ms", label: "camera to letter" }
+      - { value: "100", label: "decision trees, 27 signs" }
+    note: Published under a team developer account; co-developed by Hrishikesh Khandade.
+    links:
+      - { label: App Store, url: "https://apps.apple.com/in/app/aslive/id6763903531" }
+      - { label: Microsoft Store, url: "https://apps.microsoft.com/detail/9nt9h323f8xv" }
+      - { label: Paper, url: "https://laboffuture.odoo.com/aslive-final-research-paper" }
+  - name: Super Scholar
+    id: super-scholar
+    line: Turns research papers into a playable platformer
+    stat: "47-page PDF to game in under 1 s"
+    summary: A retro platformer that turns a dense research paper into worlds you learn by playing. Each section becomes levels, a lesson, practice questions and a boss fight. Upload any PDF, or search 250 million papers.
+    stats:
+      - { value: "5", label: "papers built in, any PDF playable" }
+      - { value: "179", label: "automated tests, 14 play-throughs" }
+      - { value: "500", label: "generated levels proved beatable" }
+    mini:
+      paper: "Attention Is All You Need (2017)"
+      facts:
+        block: The Transformer drops recurrence completely. It reads a whole sentence at once using only attention.
+        stomp: Because nothing waits on the previous word, Transformers train in parallel, far faster than older models.
+      question:
+        text: What does self-attention let each word do?
+        options:
+          - Look at every other word in the sentence at once
+          - Read the words strictly one after another
+          - Ignore the order of the words entirely
+        answer: 0
+        explain: Self-attention connects every position to every other in one step. Word order is kept by adding position signals.
+    shots:
+      - { file: title, caption: "Title screen" }
+      - { file: level, caption: "Facts from the paper appear as you play" }
+      - { file: lesson, caption: "A lesson from the professor after every level" }
+      - { file: practice, caption: "Practice question, with the answer explained" }
+      - { file: boss, caption: "Boss fight: stomp it, then answer its question" }
+      - { file: challenge, caption: "Later worlds get harder" }
+      - { file: review, caption: "Review mode marks each section known or re-read" }
+      - { file: notebook, caption: "The Scholar's Notebook keeps everything as flashcards" }
+    links:
+      - { label: Play, url: "https://super-scholar.super-scholar.workers.dev" }
+      - { label: Code, url: "https://github.com/hrishikeshkhandade/super-scholar" }
+  - name: Chef's Fridge
+    id: chefs-fridge
+    line: Fridge photo in, recipes out
+    stat: "Gemini 2.0 Flash · 30+ beta users"
+    summary: Photograph your fridge or pantry; the app names what it sees and writes recipes from only those ingredients, by cuisine and diet. Built during a mentorship at Emirates Flight Catering.
+    stats:
+      - { value: "30+", label: "beta testers" }
+      - { value: "40%", label: "faster load after optimizing" }
+      - { value: "2.0", label: "Gemini Flash for vision and recipes" }
+    fridges:
+      - name: Student fridge
+        items: [eggs, cheddar, tortillas, spinach, salsa, onion]
+        recipe:
+          title: Spinach and cheddar breakfast quesadilla
+          meta: "12 min · vegetarian · Mexican"
+          steps:
+            - Soften sliced onion in a pan, add spinach until it wilts.
+            - Scramble the eggs into the pan, then tip onto a tortilla with cheddar.
+            - Fold, crisp both sides, and serve with salsa.
+      - name: Weekend leftovers
+        items: [cooked rice, chicken, bell pepper, soy sauce, garlic, spring onion]
+        recipe:
+          title: Garlic chicken fried rice
+          meta: "15 min · high protein · Asian"
+          steps:
+            - Fry garlic and diced pepper on high heat for a minute.
+            - Add shredded chicken and cold rice; toss until the rice crackles.
+            - Finish with soy sauce and spring onion.
+      - name: Almost empty
+        items: [pasta, tomatoes, butter, garlic, parmesan, basil]
+        recipe:
+          title: Butter-tomato pasta
+          meta: "18 min · vegetarian · Italian"
+          steps:
+            - Boil the pasta; keep a cup of the water.
+            - Melt butter with garlic, add chopped tomatoes and cook down.
+            - Toss pasta in with a splash of water, parmesan and torn basil.
+    links:
+      - { label: Code, url: "https://github.com/hrishikeshkhandade/Chefs-Fridge" }
+landing:
+  frames:
+    - openers: ["I build", "I ship", "I make", "I write"]
+      middles: ["software", "apps", "tools", "small machines"]
+      endings:
+        - "that can read hands"
+        - "that can turn papers into games"
+        - "that can cook from a fridge photo"
+        - "that people actually use"
+        - "that can run on your own device"
+        - "that made it to two app stores"
+    - openers: ["I taught", "I trained", "I got"]
+      middles: ["a model", "a classifier", "a laptop camera", "a random forest"]
+      endings:
+        - "to read sign language"
+        - "to spell with its eyes"
+        - "to tell B from F"
+        - "to keep up with fingers"
+        - "to answer in under 100 ms"
+    - openers: ["Currently", "This semester", "Right now", "These days"]
+      middles: ["turning", "compiling", "rebuilding"]
+      endings:
+        - "research papers into platformers"
+        - "PDFs into boss fights"
+        - "47 pages into one level"
+        - "dense papers into playable worlds"
+    - openers: ["Freshman at UIUC,", "CS at UIUC,", "Dubai to Champaign,", "Chess player,", "Math olympian,"]
+      middles: ["still", "mostly", "always"]
+      endings:
+        - "shipping"
+        - "building things"
+        - "debugging"
+        - "counting parity"
+        - "looking for the next problem"
+    - openers: ["Hello.", "Hi.", "Welcome."]
+      middles: ["This hand", "This model", "This page"]
+      endings:
+        - "is spelling for you"
+        - "learned 26 letters"
+        - "is guessing the next letter"
+        - "never repeats itself"

@@ -1,0 +1,58 @@
+intro: I am a computer science student at the University of Illinois who likes turning an idea into something people can open and use. So far that has meant a sign language translator on two app stores, a game that teaches research papers, and a recipe app that reads your fridge.
+location: Champaign, Illinois
+education:
+  - school: University of Illinois Urbana-Champaign
+    detail: B.S. Computer Science, Grainger College of Engineering
+    when: Expected May 2030
+    notes: ["GPA 4.00"]
+  - school: Springdales School Dubai
+    detail: CBSE, Science stream (Physics, Chemistry, Mathematics, Computer Science)
+    when: 2019 to 2026
+    notes: ["SAT 1530 (790 Math)", "98/100 in Mathematics"]
+experience:
+  - org: Lab of Future, Dubai
+    role: Spring Intern, Co-Developer of ASLive
+    when: Jan 2026 to Mar 2026
+    points:
+      - Co-built ASLive, a real-time ASL fingerspelling translator, in a two-person team; shipped it on the Microsoft Store and Apple App Store and published a research paper on it.
+      - Built a MediaPipe pipeline that extracts 3D hand landmarks from live camera input and feeds a Random Forest classifier, reaching 90% accuracy with under 100 ms latency.
+  - org: Emirates Flight Catering, Dubai
+    role: AI Project Developer (Mentorship)
+    when: Mar 2025 to Jul 2025
+    points:
+      - Designed and deployed Chef's Fridge, an AI nutrition and recipe app (Python, Streamlit) that uses Gemini to recognize ingredients from photos and generate recipes; beta tested with 30+ users.
+      - Cut application load time by 40% through targeted performance optimization.
+projects:
+  - name: Super Scholar
+    context: CS 124 independent project, UIUC
+    when: Oct 2026 to present
+    points:
+      - A retro 2D web game (TypeScript, Phaser 4) that turns research papers into playable worlds with lessons, practice questions and boss fights.
+      - Wrote a rule-based generator that builds a full game from a 47-page PDF in under a second, entirely in the browser.
+      - Added security headers and rate limiting, plus tests including 500 generated levels verified beatable.
+  - name: Parity-Based Prediction in Digit Combinations
+    context: Independent mathematics research
+    when: Springdales School Dubai
+    points:
+      - Developed a formula that predicts the number of even or odd combinations possible from any digit set, tested on 10,000+ datasets.
+      - Verified over 98% accuracy against manual enumeration on datasets of up to six digits; co-authoring the findings in a paper.
+proof:
+  - { value: "4.00", label: "GPA, CS at UIUC" }
+  - { value: "1530", label: "SAT, 790 in Math" }
+  - { value: "98%", label: "accuracy of my parity formula on 10,000+ datasets" }
+  - { value: "Rank 45", label: "International Cyber Olympiad, Zonal Rank 2" }
+  - { value: "1750+", label: "Lichess rating, 6+ years of competitive chess" }
+  - { value: "6th of 46", label: "schools at UAE chess Nationals" }
+honors:
+  - VergeSci Science Fair prize for ASLive (Oct 2026)
+  - 1st place, Science Day Innovation Challenge
+  - Springdales All-Rounder Award (2 recipients per year)
+  - International Mathematics Olympiad and National Science Olympiad, Medal of Accomplishment
+  - International Cyber Olympiad, Medal of Distinction
+leadership:
+  - Aeronautics and Aviation Club, Founding Member and Editorial Head. Organized speaker sessions and wrote flight-science articles; grew student participation by 20%.
+skills:
+  - { label: Languages, items: "Python, Java, TypeScript, SQL" }
+  - { label: Tools, items: "scikit-learn, MediaPipe, Streamlit, Phaser, pdf.js, Vitest, Git, Gemini API, Cloudflare Workers" }
+  - { label: Spoken, items: "English, Hindi, Marathi" }
+certifications: "Quantitative Modeling (Wharton), Probability and Statistics (University of London), Bloomberg Finance Fundamentals, Enterprise Data Wrangling with SQL and Python, Generative AI (Google Cloud)"
