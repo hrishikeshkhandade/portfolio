@@ -32,3 +32,36 @@
         - J and Z are traced in the air in real ASL. The model sees one frame at a time, so it knows them only as a still pose.
         - I recorded all the training data with my own hands, so the model has learned one person's hands and one person's way of signing.
         - The accuracy figure, 85 to 90%, comes from testing it live by hand.
+- id: super-scholar
+  lede: Super Scholar takes a research paper and turns it into a platformer. Each section becomes a world with levels, a short lesson, practice questions and a boss that quizzes you. It works on five built-in papers, on any PDF you upload, and on papers found by searching OpenAlex.
+  sections:
+    - title: From PDF to game
+      steps:
+        - head: Read the PDF in the browser
+          body: pdf.js pulls the text out of the PDF inside the browser tab, line by line, along with each line's font size. The file itself is never uploaded. It handles papers up to 120 pages.
+        - head: Find the sections
+          body: Headings are usually set in a bigger font than the body. So the generator works out which font size most of the text uses and treats larger lines as headings. When a PDF does not do that, it falls back to numbered lines like "3 Results". Page numbers and repeated headers are dropped, and everything from the references on is cut. Sections become worlds, five at most, and extra sections are merged with their neighbours.
+        - head: Find what matters
+          body: Key terms are the words and two-word phrases that come up often in some sections but not everywhere, which is a TF-IDF score. Each sentence is scored by the key terms it contains, with a bonus for the opening sentences of a section. The best sentences become the lesson, and the key terms become fill-in-the-blank questions.
+        - head: Rewrite it in plain words, when possible
+          body: When a free AI model is available, it is sent each section's key sentences and asked to rewrite that world in plain words. Its answer must pass the same strict checks as everything else in the game. If it fails them, or no model answers, the rules-made world is used instead. Each paper's result is saved, so the same paper never costs a second request.
+        - head: Build the levels
+          body: Levels are stitched together from small hand-designed chunks, each one beatable on its own. The same seed always gives the same level, and a difficulty setting decides how many enemies and hazards go in.
+    - title: What the design buys
+      points:
+        - head: Rules first, AI second
+          body: The game never depends on an AI answering. The rules alone turn a paper into a full playable game, with no server involved. A model being down or out of quota costs some polish and nothing else.
+        - head: Chunks, not random tiles
+          body: A level made of random tiles can be impossible to finish. A level made of chunks that are each beatable stays beatable, and a checker confirms it.
+        - head: Fair, not just possible
+          body: The checker finds every spot the player can reach by walking, dropping and jumping. It allows a jump to use at most 80% of a perfect running jump's reach, so a level is fair for a person and not only possible for a computer.
+    - title: How it is tested
+      text:
+        - There are 192 automated tests. One of them generates 500 levels across every difficulty and checks that each can be finished.
+        - A further 19 play-through checks drive the real game in a hidden browser, including on a phone-sized screen.
+        - The server side limits how many requests each visitor can make a minute, and every page is sent with a strict content security policy.
+    - title: Limits
+      list:
+        - The rules read text only. Figures, tables and equations do not make it into the game.
+        - Rules-made questions are fill-in-the-blank on key terms. They test whether you remember a term, not whether you understand it.
+        - A scanned paper with no text layer cannot be read.

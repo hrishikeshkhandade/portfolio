@@ -39,6 +39,16 @@ describe('how it works page', () => {
     expect(html).not.toMatch(/[\w.+-]+@[\w-]+\.[\w.]+|mailto:|tel:/)
     expect(JSON.stringify(how)).not.toContain('—')
   })
+  it('states the same Super Scholar numbers as its scene', () => {
+    const text = JSON.stringify(how.find((h) => h.id === 'super-scholar'))
+    const work = site.work.find((w) => w.id === 'super-scholar')!
+    const stat = (label: RegExp) => work.stats!.find((s) => label.test(s.label))!
+    const tests = stat(/automated tests/)
+    expect(text).toContain(`${tests.value} automated tests`)
+    expect(text).toContain(`${tests.label.match(/(\d+) play-throughs/)![1]} play-through checks`)
+    expect(text).toContain(`${stat(/levels/).value} levels`)
+    expect(text).toContain(`${stat(/papers built in/).value === '5' ? 'five' : '?'} built-in papers`)
+  })
   it('states numbers about ASLive that match the model and the demo code', () => {
     const text = JSON.stringify(how.find((h) => h.id === 'aslive'))
     const scene = readFileSync(new URL('../src/scenes/aslive.ts', import.meta.url), 'utf8')
