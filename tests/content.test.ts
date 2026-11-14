@@ -8,7 +8,8 @@ describe('site content', () => {
       expect(item.name.trim()).not.toBe('')
       expect(item.line.trim()).not.toBe('')
       expect(item.stat.trim()).not.toBe('')
-      expect(item.links.length).toBeGreaterThanOrEqual(1)
+      // Research with nothing published yet has no outside link; its scene is the proof.
+      if (item.id !== 'parity') expect(item.links.length).toBeGreaterThanOrEqual(1)
       for (const link of item.links) { expect(link.label.trim()).not.toBe(''); expect(link.url).toMatch(/^https:\/\//) }
     }
   })

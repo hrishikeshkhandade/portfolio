@@ -34,12 +34,12 @@ projects:
     context: Independent mathematics research
     when: Springdales School Dubai
     points:
-      - Developed a formula that predicts the number of even or odd combinations possible from any digit set, tested on 10,000+ datasets.
-      - Verified over 98% accuracy against manual enumeration on datasets of up to six digits; co-authoring the findings in a paper.
+      - Developed a formula that counts the even or odd numbers any set of digits can form, without listing them; exact for every digit set, including when zero cannot lead.
+      - Verified against a full listing on 10,230 cases covering all 1,023 digit sets; co-authoring the findings in a paper.
 proof:
   - { value: "4.00", label: "GPA, CS at UIUC" }
   - { value: "1530", label: "SAT, 790 in Math" }
-  - { value: "98%", label: "accuracy of my parity formula on 10,000+ datasets" }
+  - { value: "10,230", label: "cases where my parity formula matches a full listing" }
   - { value: "Rank 45", label: "International Cyber Olympiad, Zonal Rank 2" }
   - { value: "1750+", label: "Lichess rating, 6+ years of competitive chess" }
   - { value: "6th of 46", label: "schools at UAE chess Nationals" }

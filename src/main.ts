@@ -43,6 +43,7 @@ const scenes: SceneDef[] = [
   { id: 'aslive', title: 'ASLive', tint: { h: 150, c: 0.032 }, load: async () => (await import('./scenes/aslive')).createAslive() },
   { id: 'super-scholar', title: 'Super Scholar', tint: { h: 285, c: 0.03 }, load: async () => (await import('./scenes/super-scholar')).createSuperScholar() },
   { id: 'chefs-fridge', title: "Chef's Fridge", tint: { h: 58, c: 0.042 }, load: async () => (await import('./scenes/chefs-fridge')).createChefsFridge() },
+  { id: 'parity', title: 'Parity Formula', tint: { h: 20, c: 0.03 }, load: async () => (await import('./scenes/parity')).createParity() },
   { id: 'about', title: 'About', tint: { h: 235, c: 0.022 }, load: async () => (await import('./scenes/about')).createAbout() },
 ]
 const stage = createStage(document.getElementById('scene')!, document.getElementById('markers')!, document.getElementById('where')!, scenes, document.title)

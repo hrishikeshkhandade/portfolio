@@ -91,6 +91,17 @@ work:
             - Toss pasta in with a splash of water, parmesan and torn basil.
     links:
       - { label: Code, url: "https://github.com/hrishikeshkhandade/Chefs-Fridge" }
+  - name: Parity Formula
+    id: parity
+    line: Counts the even and odd numbers a digit set can form
+    stat: "exact on all 1,023 digit sets"
+    summary: A shortcut for counting how many even or odd numbers a set of digits can form, without listing them. My first version was an estimate that broke whenever zero was in the set. This one is exact, and it is checked against a full listing for every possible set of digits.
+    stats:
+      - { value: "1,023", label: "digit sets, every one checked" }
+      - { value: "10,230", label: "cases matched against a full listing" }
+      - { value: "0", label: "numbers listed to get the answer" }
+    note: Independent mathematics research, begun at Springdales School Dubai. Digits are distinct; a number longer than one digit cannot start with zero.
+    links: []
 landing:
   frames:
     - openers: ["I build", "I ship", "I make", "I write"]
