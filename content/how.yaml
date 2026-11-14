@@ -13,7 +13,7 @@
         - head: Let 100 trees vote
           body: "Those 63 numbers go to a Random Forest: 100 decision trees that each look at the hand and vote. The result is a probability for each of 27 signs, the letters A to Z plus space."
         - head: Decide when to type
-          body: A camera produces many answers a second, and a hand passes through other shapes on its way to the one it means. The app accepts a letter only when the model is 85 to 90% sure of it. On this site a letter is typed after the model gives the same answer 12 frames in a row with at least 50% confidence.
+          body: A camera produces many answers a second, and a hand passes through other shapes on its way to the one it means. The app accepts a letter only when the model is 90 to 95% sure of it. On this site a letter is typed after the model gives the same answer 12 frames in a row with at least 50% confidence.
     - title: What the design buys
       points:
         - head: Landmarks, not pixels
@@ -31,3 +31,4 @@
         - It reads fingerspelling, one hand at a time. Full ASL has signs, grammar, movement and facial expression, and this does not attempt them.
         - J and Z are traced in the air in real ASL. The model sees one frame at a time, so it knows them only as a still pose.
         - I recorded all the training data with my own hands, so the model has learned one person's hands and one person's way of signing.
+        - The accuracy figure, 85 to 90%, comes from testing it live by hand.

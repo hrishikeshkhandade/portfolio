@@ -15,7 +15,7 @@ experience:
     when: Jan 2026 to Mar 2026
     points:
       - Co-built ASLive, a real-time ASL fingerspelling translator, in a two-person team; shipped it on the Microsoft Store and Apple App Store and published a research paper on it.
-      - Built a MediaPipe pipeline that extracts 3D hand landmarks from live camera input and feeds a Random Forest classifier, reaching 90% accuracy with under 100 ms latency.
+      - Built a MediaPipe pipeline that extracts 3D hand landmarks from live camera input and feeds a Random Forest classifier, reaching 85 to 90% accuracy in live testing with under 100 ms latency.
   - org: Emirates Flight Catering, Dubai
     role: AI Project Developer (Mentorship)
     when: Mar 2025 to Jul 2025

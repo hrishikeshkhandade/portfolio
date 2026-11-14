@@ -9,10 +9,10 @@ work:
   - name: ASLive
     id: aslive
     line: Real-time ASL fingerspelling translator
-    stat: "90% accuracy · under 100 ms"
+    stat: "85–90% accuracy · under 100 ms"
     summary: Reads American Sign Language fingerspelling from a webcam and turns it into text, entirely on your own device. Built as a two-person team; published research paper.
     stats:
-      - { value: "90%", label: "classification accuracy" }
+      - { value: "85–90%", label: "accuracy in live testing" }
       - { value: "<100 ms", label: "camera to letter" }
       - { value: "100", label: "decision trees, 27 signs" }
     note: Published under a team developer account; co-developed by Hrishikesh Khandade.
