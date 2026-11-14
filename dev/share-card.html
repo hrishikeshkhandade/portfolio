@@ -1,0 +1,47 @@
+<!doctype html>
+<!--
+  Draws the link preview image (public/share.png, 1200 x 630). Not part of the built site.
+  To regenerate, with the dev server running on port 5179:
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars \
+      --force-device-scale-factor=1 --window-size=1200,630 --virtual-time-budget=5000 \
+      --screenshot=public/share.png http://localhost:5179/dev/share-card.html
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Share card</title>
+    <style>
+      html, body { margin: 0; }
+      .card {
+        position: relative; width: 1200px; height: 630px; overflow: hidden; box-sizing: border-box;
+        background: #f4efe4; color: #1b1a17; padding: 64px 72px;
+        display: grid; grid-template-rows: auto 1fr auto;
+        font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+      }
+      .label { margin: 0; font-size: 20px; letter-spacing: 0.04em; color: #6b665b; }
+      .label b { font-weight: 500; color: #1f7a4d; }
+      .main { align-self: center; max-width: 660px; }
+      h1 { margin: 0; font-family: 'Newsreader Variable', Georgia, serif; font-weight: 400; font-size: 92px; line-height: 1; letter-spacing: -0.03em; }
+      .line { margin: 28px 0 0; font-family: 'Newsreader Variable', Georgia, serif; font-size: 38px; line-height: 1.25; letter-spacing: -0.01em; color: #1b1a17; max-width: 17em; }
+      .work { margin: 0; padding: 22px 0 0; border-top: 1px solid rgba(27, 26, 23, 0.18); font-size: 20px; color: #1b1a17; max-width: 680px; }
+      .work span { color: #6b665b; }
+      canvas { position: absolute; right: 72px; top: 70px; width: 340px; height: 490px; }
+      .tick { position: absolute; width: 22px; height: 22px; border: 0 solid rgba(27, 26, 23, 0.24); }
+      .tl { right: 390px; top: 70px; border-top-width: 1px; border-left-width: 1px; }
+      .br { right: 72px; top: 538px; border-bottom-width: 1px; border-right-width: 1px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <p class="label" id="label"></p>
+      <div class="main">
+        <h1 id="name"></h1>
+        <p class="line">Software you can open and use, with playable demos of each project.</p>
+      </div>
+      <p class="work" id="work"></p>
+      <i class="tick tl"></i><i class="tick br"></i>
+      <canvas id="hand" width="340" height="490"></canvas>
+    </div>
+    <script type="module" src="./share-card.ts"></script>
+  </body>
+</html>

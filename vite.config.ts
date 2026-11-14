@@ -4,6 +4,7 @@ import type { Plugin } from 'vite'
 import { parse } from 'yaml'
 import type { About } from './src/content/about'
 import type { SiteContent } from './src/content/site'
+import { headTags } from './src/content/meta'
 import { renderFallback, renderResume } from './src/resume/render'
 
 function yamlPlugin(): Plugin {
@@ -16,14 +17,15 @@ function yamlPlugin(): Plugin {
   }
 }
 
-/** Writes the resume and the no-script fallback into the HTML at build time, from the content files. */
+/** Writes the resume, the no-script fallback and the head tags into the HTML at build time, from the content files. */
 function staticContent(): Plugin {
   const load = <T>(file: string): T => parse(readFileSync(new URL(`./content/${file}`, import.meta.url), 'utf8')) as T
   return {
     name: 'static-content',
-    transformIndexHtml(html) {
+    transformIndexHtml(html, ctx) {
       const site = load<SiteContent>('site.yaml'), about = load<About>('about.yaml')
-      return html.replace('<!--resume-->', () => renderResume(site, about)).replace('<!--fallback-->', () => renderFallback(site, about))
+      const page = ctx.path.includes('resume') ? 'resume' : 'home'
+      return html.replace('<!--head-->', () => headTags(site, page)).replace('<!--resume-->', () => renderResume(site, about)).replace('<!--fallback-->', () => renderFallback(site, about))
     },
   }
 }

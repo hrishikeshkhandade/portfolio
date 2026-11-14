@@ -1,4 +1,6 @@
 wordmark: Hrishikesh Khandade
+# Where the site is served. Link previews need the full address; change it here when the domain changes.
+url: "https://portfolio.hrishikhandade.workers.dev"
 status: CS at UIUC · open to Summer 2027 internships
 links:
   - { label: GitHub, url: "https://github.com/hrishikeshkhandade" }

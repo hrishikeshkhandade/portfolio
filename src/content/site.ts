@@ -32,6 +32,8 @@ export interface Fridge {
 
 export interface SiteContent {
   wordmark: string
+  /** Public address of the site, no trailing slash. */
+  url: string
   status: string
   links: Link[]
   work: Work[]
