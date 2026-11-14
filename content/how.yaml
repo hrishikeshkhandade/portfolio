@@ -13,13 +13,13 @@
         - head: Let 100 trees vote
           body: "Those 63 numbers go to a Random Forest: 100 decision trees that each look at the hand and vote. The result is a probability for each of 27 signs, the letters A to Z plus space."
         - head: Decide when to type
-          body: A camera produces many answers a second, and a hand passes through other shapes on its way to the one it means. On this site a letter is typed only after the model gives the same answer 12 frames in a row with at least 50% confidence.
+          body: A camera produces many answers a second, and a hand passes through other shapes on its way to the one it means. The app accepts a letter only when the model is 85 to 90% sure of it. On this site a letter is typed after the model gives the same answer 12 frames in a row with at least 50% confidence.
     - title: What the design buys
       points:
         - head: Landmarks, not pixels
           body: The classifier never sees the image, only 63 numbers. Lighting, background and skin tone are dealt with by the hand tracker before the model runs, and the model itself stays small.
         - head: A forest, not a neural network
-          body: The trained model is 2.7 MB, needs no graphics card, and is fast enough to run on every frame.
+          body: I tried a neural network first and spent two or three hours on it. I had recorded all the training data myself, so there was not much of it, and the network did not learn the signs reliably. A Random Forest on the hand landmarks gave better results from that small amount of data, and faster ones. The trained model is 2.7 MB, needs no graphics card, and runs on every frame.
         - head: Everything on the device
           body: The video never leaves the device. There is no server to send it to.
     - title: Moving it into a browser
@@ -30,3 +30,4 @@
       list:
         - It reads fingerspelling, one hand at a time. Full ASL has signs, grammar, movement and facial expression, and this does not attempt them.
         - J and Z are traced in the air in real ASL. The model sees one frame at a time, so it knows them only as a still pose.
+        - I recorded all the training data with my own hands, so the model has learned one person's hands and one person's way of signing.

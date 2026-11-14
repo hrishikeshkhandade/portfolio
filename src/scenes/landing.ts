@@ -6,7 +6,7 @@ import { mulberry32, range, shuffle } from '../lib/rng'
 import { createDeck } from '../predict/grammar'
 import { browserStore, createRememberedDeck } from '../predict/memory'
 import { barsAt, leaderAt, planLetter, type LetterPlan } from '../predict/timeline'
-import { drawHand, type HandStyle } from '../hand/draw'
+import { drawHand, fitView, type HandStyle } from '../hand/draw'
 import { LETTERS, REST } from '../hand/poses'
 import { landmarks, lerpPose, type Pose, type Pt } from '../hand/skeleton'
 
@@ -145,7 +145,7 @@ export function createLanding(seed: number, replay = false, openScene: (id: stri
     cur = lerpPose(from, to, easeOut((now - poseStart) / (POSE_MS / speed)))
     ctx.clearRect(0, 0, width, height)
     const pts = landmarks({ ...cur, rot: cur.rot + tilt }, mirror)
-    drawHand(ctx, pts, { cx: width / 2, cy: height / 2, scale: Math.min(width / 1.9, height / 2.5), pointer }, style)
+    drawHand(ctx, pts, fitView(pts, width, height, Math.min(width / 1.9, height / 2.5), pointer), style)
   }
 
   function frame(now: number): void {

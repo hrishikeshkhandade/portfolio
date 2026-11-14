@@ -59,3 +59,26 @@ describe('hand', () => {
     for (let i = 0; i < 21; i++) expect(used.has(i)).toBe(true)
   })
 })
+
+describe('fitView keeps the landing hand inside its box', () => {
+  it('holds every pose, mid-turn pose, mirror and tilt within the frame', async () => {
+    const { fitView, project } = await import('../src/hand/draw')
+    const { LETTERS, REST } = await import('../src/hand/poses')
+    const { landmarks, lerpPose } = await import('../src/hand/skeleton')
+    const poses = [REST, ...Object.values(LETTERS)]
+    for (const [width, height] of [[368, 460], [343, 300], [600, 220]]) {
+      const base = Math.min(width / 1.9, height / 2.5)
+      for (const a of poses) for (const b of [REST, LETTERS.P, LETTERS.Q, LETTERS.G]) for (const t of [0, 0.5, 1])
+        for (const mirror of [false, true]) for (const tilt of [-6, 6]) {
+          const pose = lerpPose(a, b, t)
+          const pts = landmarks({ ...pose, rot: pose.rot + tilt }, mirror)
+          for (const [x, y] of project(pts, fitView(pts, width, height, base, null))) {
+            expect(x).toBeGreaterThanOrEqual(0)
+            expect(x).toBeLessThanOrEqual(width)
+            expect(y).toBeGreaterThanOrEqual(0)
+            expect(y).toBeLessThanOrEqual(height)
+          }
+        }
+    }
+  })
+})
