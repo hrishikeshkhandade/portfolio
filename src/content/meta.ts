@@ -29,7 +29,7 @@ export function headTags(site: SiteContent, page: Page): string {
   const title = page === 'resume' ? `Resume · ${site.wordmark}` : site.wordmark
   const text = describe(site, page)
   const image = `${base}${SHARE_IMAGE.path}`
-  const alt = `${site.wordmark}: portfolio, with a line-drawn hand and the projects ${andList(site.work.map((w) => w.name))}`
+  const alt = `${site.wordmark}: portfolio. Line-drawn hands fingerspell H, R, I, S, H, I above the projects ${andList(site.work.map((w) => w.name))}`
   const meta = (attr: 'name' | 'property', key: string, value: string | number): string =>
     `<meta ${attr}="${key}" content="${esc(String(value))}" />`
   return [
