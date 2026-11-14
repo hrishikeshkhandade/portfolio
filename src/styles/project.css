@@ -168,3 +168,20 @@ a.key.primary { text-decoration: none; justify-self: start; padding-left: var(--
 .f-live { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s4); width: 100%; }
 .f-note { font-size: var(--t-cap); color: var(--ink-soft); max-width: 40ch; }
 .chef .recipe { min-height: 10em; }
+
+/* ---- About ---- */
+.hello { display: flex; gap: var(--s4); height: 112px; }
+.hello canvas { width: 112px; height: 112px; }
+.about-intro { max-width: 40ch; font-size: var(--t-h2); line-height: 1.32; letter-spacing: -0.01em; }
+.about-status { margin: 0; font-size: var(--t-cap); color: var(--ink-soft); }
+.about-actions { margin: 0; }
+.about-side { gap: var(--s4); align-content: center; }
+.proof { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; width: 100%; border-top: 1px solid var(--rule); }
+.proof div { display: grid; gap: var(--s1); padding: var(--s4) var(--s4) var(--s4) 0; border-bottom: 1px solid var(--rule); }
+.proof div:nth-child(even) { padding-left: var(--s4); border-left: 1px solid var(--rule); }
+.proof dt { font-family: var(--serif); font-size: var(--t-h1); line-height: 1; letter-spacing: -0.02em; }
+.proof dd { margin: 0; font-size: var(--t-cap); color: var(--ink-soft); }
+.honors { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s2); font-size: var(--t-cap); color: var(--ink); width: 100%; }
+.honors li { padding-left: var(--s4); position: relative; }
+.honors li::before { content: ''; position: absolute; left: 0; top: 0.75em; width: 8px; height: 1px; background: var(--ink-faint); }
+@media (max-width: 900px) { .about-intro { font-size: var(--t-h3); } .hello { height: 88px; } .hello canvas { width: 88px; height: 88px; } }
