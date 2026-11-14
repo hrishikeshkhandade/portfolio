@@ -1,0 +1,32 @@
+# "How it works" write-ups, one per project, shown at /how. The id must match a project in site.yaml.
+# Each section has a title and exactly one of: steps (numbered), points (name and explanation),
+# list (bullets) or text (paragraphs). Only write what is true and checkable.
+- id: aslive
+  lede: ASLive turns a hand held up to a camera into typed letters. Nothing in it needs a server. The whole pipeline runs on the device, and on this site it runs inside your browser tab.
+  sections:
+    - title: From camera frame to letter
+      steps:
+        - head: Find the hand
+          body: "Each camera frame goes to MediaPipe's hand tracker, which returns 21 landmarks: the wrist and four points along each finger, each with x, y and depth. On this site the tracker runs in a background thread so the page never stalls, on the graphics card when there is one."
+        - head: Make every hand comparable
+          body: Raw positions depend on where the hand sits in the frame and how far it is from the lens. So every point is measured from the wrist, then divided by the distance from the wrist to the tip of the middle finger. A hand close to the camera and a hand at arm's length come out as nearly the same 63 numbers.
+        - head: Let 100 trees vote
+          body: "Those 63 numbers go to a Random Forest: 100 decision trees that each look at the hand and vote. The result is a probability for each of 27 signs, the letters A to Z plus space."
+        - head: Decide when to type
+          body: A camera produces many answers a second, and a hand passes through other shapes on its way to the one it means. On this site a letter is typed only after the model gives the same answer 12 frames in a row with at least 50% confidence.
+    - title: What the design buys
+      points:
+        - head: Landmarks, not pixels
+          body: The classifier never sees the image, only 63 numbers. Lighting, background and skin tone are dealt with by the hand tracker before the model runs, and the model itself stays small.
+        - head: A forest, not a neural network
+          body: The trained model is 2.7 MB, needs no graphics card, and is fast enough to run on every frame.
+        - head: Everything on the device
+          body: The video never leaves the device. There is no server to send it to.
+    - title: Moving it into a browser
+      text:
+        - The app is written in Python with scikit-learn. For this site the trained forest is exported into a single binary file, with a small TypeScript reader that walks the same trees. The model in the demo is the real one, not a lookalike.
+        - "To prove the port is exact, an automated test runs 150 real hands through both versions. Every top answer matches, and no probability differs by more than 0.01."
+    - title: Limits
+      list:
+        - It reads fingerspelling, one hand at a time. Full ASL has signs, grammar, movement and facial expression, and this does not attempt them.
+        - J and Z are traced in the air in real ASL. The model sees one frame at a time, so it knows them only as a still pose.

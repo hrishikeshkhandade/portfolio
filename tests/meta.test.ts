@@ -8,6 +8,7 @@ group('head tags', () => {
     for (const page of ['home', 'resume'] as const) {
       const text = describe(site, page)
       for (const w of site.work) expect(text, page).toContain(w.name)
+      expect(describe(site, 'how').length).toBeLessThanOrEqual(160)
       // Search engines cut descriptions at about 160 characters.
       expect(text.length, text).toBeLessThanOrEqual(160)
     }
@@ -36,7 +37,7 @@ group('head tags', () => {
     expect(png.length).toBeLessThan(1_000_000)
   })
   it('both pages ask the build for these tags', () => {
-    for (const page of ['index.html', 'resume.html']) {
+    for (const page of ['index.html', 'resume.html', 'how.html']) {
       const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8')
       expect(html, page).toContain('<!--head-->')
       expect(html, page).not.toContain('name="description"')

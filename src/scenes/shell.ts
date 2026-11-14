@@ -1,4 +1,5 @@
 import '../styles/project.css'
+import { how } from '../content/how'
 import { site, type Work } from '../content/site'
 
 export const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string): HTMLElementTagNameMap[K] => {
@@ -38,6 +39,12 @@ export function projectText(work: Work): HTMLElement {
   }
   const links = el('p', 'p-links')
   for (const link of work.links) links.append(externalLink(link.label, link.url))
+  // Projects with a write-up link to it last, so scenes that restyle their first link are unaffected.
+  if (how.some((entry) => entry.id === work.id)) {
+    const a = el('a', '', 'How it works')
+    a.href = `/how.html#${work.id}`
+    links.append(a)
+  }
   text.append(links)
   if (work.note) text.append(el('p', 'p-note', work.note))
   return text
