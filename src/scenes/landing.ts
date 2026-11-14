@@ -16,7 +16,7 @@ const SPACE_MS = 120
 /** Progress at which the winning row is marked as chosen. */
 const CHOSEN_AT = 0.72
 const END_HOLD_MS = 2600
-const MAX_WORD = 16
+const MAX_WORD = 40
 
 const isLetter = (ch: string): boolean => /[a-z]/i.test(ch)
 const matchCase = (letter: string, like: string): string => (like === like.toLowerCase() ? letter.toLowerCase() : letter)
@@ -188,7 +188,7 @@ export function createLanding(seed: number, replay = false, openScene: (id: stri
   }
 
   function spell(word: string): void {
-    const clean = word.replace(/[^a-z]/gi, '').slice(0, MAX_WORD).toLowerCase()
+    const clean = word.replace(/[^a-z ]/gi, '').replace(/\s+/g, ' ').slice(0, MAX_WORD).trim().toLowerCase()
     input.value = ''
     input.hidden = true
     spellBtn.hidden = false
@@ -235,7 +235,15 @@ export function createLanding(seed: number, replay = false, openScene: (id: stri
       li.append(cell('num', String(i + 1).padStart(2, '0')), name, cell('line', item.line), cell('stat', item.stat), links)
       // Pointing at a project makes the hand spell its name.
       const spoken = item.name.replace(/[^a-z ]/gi, '')
-      li.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse' && !reduce) say(spoken) })
+      // Only a mouse that really moved counts: a row sliding under a resting cursor (page load,
+      // scrolling back up) must not interrupt the sentence.
+      let told = false
+      li.addEventListener('pointermove', (e) => {
+        if (told || e.pointerType !== 'mouse' || reduce || (!e.movementX && !e.movementY)) return
+        told = true
+        say(spoken)
+      })
+      li.addEventListener('pointerleave', () => { told = false })
       list.append(li)
     })
     nav.append(label, list)
