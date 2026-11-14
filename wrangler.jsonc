@@ -8,6 +8,6 @@
   "main": "worker/index.ts",
   "compatibility_date": "2026-11-01",
   "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
-  "kv_namespaces": [{ "binding": "LIMITS", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }],
+  "kv_namespaces": [{ "binding": "LIMITS", "id": "49ba9db830a144d085b28035457245f1" }],
   "vars": { "GEMINI_MODEL": "gemini-3.5-flash-lite", "DAILY_PER_VISITOR": "3", "DAILY_TOTAL": "120" }
 }
