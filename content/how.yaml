@@ -73,7 +73,7 @@
         - head: Take or upload photos
           body: The app is built with Streamlit, so the whole interface is Python. You upload photos or use the camera, and a photo you have already added is skipped by comparing a fingerprint of the image.
         - head: Ask the model what it sees
-          body: Each photo goes to Gemini 2.0 Flash with one request, to list every food item as a comma-separated line. The answers from all the photos are split, merged and stripped of duplicates.
+          body: Each photo goes to Gemini with one request (2.0 Flash when the app was built), to list every food item as a comma-separated line. The answers from all the photos are split, merged and stripped of duplicates.
         - head: Let the person fix the list
           body: Before any recipe is written, the list is shown and can be edited. A missed item can be added and a wrong one removed, so a mistake in reading the photo does not carry into the recipe.
         - head: Write the recipes
@@ -97,7 +97,7 @@
         - The model can miss an item or name one wrongly. The original app lets you correct the list. The demo here does not.
         - The recipes are written by a language model and have not been tested in a kitchen.
         - Diet and cuisine are requests to the model, not checks. It does not verify allergens.
-        - Gemini 2.0 Flash has since been shut down, so the original app needs a newer model to run today. The demo here uses a newer one.
+        - The original was built on Gemini 2.0 Flash, which has since been shut down. It has been moved to a newer model, and the model is now a setting, so the next shutdown is a one-line change.
 - id: parity
   lede: Take a set of digits. How many even numbers of a given length can you write with them, and how many odd? This is a formula that answers without listing the numbers. The first version was a shortcut that turned out to be exactly right in one case and wrong in another. The second version is right in both.
   sections:
