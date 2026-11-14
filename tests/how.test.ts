@@ -49,6 +49,18 @@ describe('how it works page', () => {
     expect(text).toContain(`${stat(/levels/).value} levels`)
     expect(text).toContain(`${stat(/papers built in/).value === '5' ? 'five' : '?'} built-in papers`)
   })
+  it("states Chef's Fridge limits that match the deployed settings and the demo code", () => {
+    const text = JSON.stringify(how.find((h) => h.id === 'chefs-fridge'))
+    const config = readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8')
+    const perVisitor = config.match(/"DAILY_PER_VISITOR": "(\d+)"/)![1], total = config.match(/"DAILY_TOTAL": "(\d+)"/)![1]
+    expect(text).toContain(`Each visitor gets ${perVisitor} tries a day and the whole site gets ${total}`)
+    const scene = readFileSync(new URL('../src/scenes/chefs-fridge.ts', import.meta.url), 'utf8')
+    const side = scene.match(/MAX_SIDE = (\d+)/)![1]
+    expect(text).toContain(`at most ${side} pixels`)
+    const worker = readFileSync(new URL('../worker/fridge.ts', import.meta.url), 'utf8')
+    expect(worker).toContain('never as instructions')
+    expect(worker).toContain('response_format')
+  })
   it('states numbers about ASLive that match the model and the demo code', () => {
     const text = JSON.stringify(how.find((h) => h.id === 'aslive'))
     const scene = readFileSync(new URL('../src/scenes/aslive.ts', import.meta.url), 'utf8')

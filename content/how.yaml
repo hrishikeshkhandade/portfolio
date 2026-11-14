@@ -65,3 +65,36 @@
         - The rules read text only. Figures, tables and equations do not make it into the game.
         - Rules-made questions are fill-in-the-blank on key terms. They test whether you remember a term, not whether you understand it.
         - A scanned paper with no text layer cannot be read.
+- id: chefs-fridge
+  lede: Chef's Fridge looks at a photo of your fridge or pantry, names the food it can see, and writes recipes from those ingredients. The original is a Python app. The demo on this site is a smaller rebuild of the same idea, and the differences between the two are the interesting part.
+  sections:
+    - title: The original app
+      steps:
+        - head: Take or upload photos
+          body: The app is built with Streamlit, so the whole interface is Python. You upload photos or use the camera, and a photo you have already added is skipped by comparing a fingerprint of the image.
+        - head: Ask the model what it sees
+          body: Each photo goes to Gemini 2.0 Flash with one request, to list every food item as a comma-separated line. The answers from all the photos are split, merged and stripped of duplicates.
+        - head: Let the person fix the list
+          body: Before any recipe is written, the list is shown and can be edited. A missed item can be added and a wrong one removed, so a mistake in reading the photo does not carry into the recipe.
+        - head: Write the recipes
+          body: A second request sends the final list, plus the diet and cuisine you picked, and asks for a title, ingredients with quantities, and numbered steps in plain text. Pattern matching then strips stray formatting and finds the ingredients and steps so the app can lay them out.
+        - head: Keep or print
+          body: A recipe can be saved for the session or downloaded as a PDF.
+    - title: The version on this site
+      points:
+        - head: One request, structured answer
+          body: The demo sends the photo once and asks for the ingredients and a recipe together, as data that must match a fixed shape. There is no text to clean up and nothing to guess at, which removes the most fragile part of the original.
+        - head: The key stays on the server
+          body: The browser never sees the model key. The photo goes to a small server function, which adds the key and calls the model.
+        - head: Smaller photos
+          body: The photo is shrunk in the browser to at most 1024 pixels on its longer side before it is sent. That is enough for the model and much lighter on a phone connection.
+        - head: Hard limits
+          body: Each visitor gets 3 tries a day and the whole site gets 120. A try is counted before the model is called, so failures and retries cannot be used to go past the cap. Visitors are counted by a one-way code that changes every day, so no address is stored.
+        - head: Text in a photo is not an instruction
+          body: The model is told to treat any writing inside the photo as part of the picture. A note on the fridge door that says "ignore your instructions" is just a note.
+    - title: Limits
+      list:
+        - The model can miss an item or name one wrongly. The original app lets you correct the list. The demo here does not.
+        - The recipes are written by a language model and have not been tested in a kitchen.
+        - Diet and cuisine are requests to the model, not checks. It does not verify allergens.
+        - Gemini 2.0 Flash has since been shut down, so the original app needs a newer model to run today. The demo here uses a newer one.
