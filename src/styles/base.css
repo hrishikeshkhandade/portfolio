@@ -43,7 +43,8 @@ body {
   clip-path: inset(50%); white-space: nowrap;
 }
 
-.shell { position: fixed; inset: 0; display: grid; grid-template-rows: auto 1fr auto; }
+/* minmax(0, 1fr): a wide header or footer must never stretch the page past the screen. */
+.shell { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr auto; }
 
 .top, .bottom {
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
@@ -119,8 +120,13 @@ html:not([data-scene='hand']) #seed { visibility: hidden; }
 @media (max-width: 640px) { .where { visibility: hidden; overflow: hidden; } }
 
 @media (max-width: 640px) {
-  .bottom { grid-template-columns: auto 1fr; column-gap: var(--s4); }
-  .bottom .foot-links { justify-self: end; }
+  /* Scene markers and profile links share one row when they fit and wrap to two when they do not,
+     so adding a scene cannot push the footer off a narrow phone. */
+  .bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0 var(--s2); }
+  /* Slightly tighter, so six markers and three links still share one row on a 375px phone. */
+  .markers { gap: 2px; }
+  .marker { min-width: 26px; padding-inline: 3px; }
+  .bottom .foot-links { gap: var(--s3); }
   .bottom #seed { display: none; }
 }
 

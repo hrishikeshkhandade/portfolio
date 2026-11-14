@@ -28,6 +28,7 @@ const PROBLEMS: Record<string, string> = {
   no_food: 'No food found in that photo. Try one of a fridge, shelf or counter.',
   too_large: 'That photo is too large to send.',
   offline: 'The live demo runs on the deployed site. Showing a sample instead.',
+  switched_off: 'The live demo is switched off right now. Showing a sample instead.',
 }
 
 /**
@@ -108,7 +109,9 @@ export function createChefsFridge(): Scene {
       const response = await fetch('/api/fridge', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image, mime: 'image/jpeg' }) })
       const isJson = response.headers.get('content-type')?.includes('application/json')
       // A static host or local preview has no function behind this address.
-      if (!isJson || response.status === 404 || response.status === 405 || response.status === 503) { run(active, true); status.textContent = PROBLEMS.offline; return }
+      if (!isJson || response.status === 404 || response.status === 405) { run(active, true); status.textContent = PROBLEMS.offline; return }
+      // The function is deployed but has no model key yet: say so, rather than claim this is not the real site.
+      if (response.status === 503) { run(active, true); status.textContent = PROBLEMS.switched_off; return }
       const data = await response.json() as Partial<Live> & { error?: string }
       if (data.error || !data.ingredients || !data.recipe) {
         status.textContent = PROBLEMS[data.error ?? ''] ?? 'That photo could not be read. Try another, or a sample fridge.'
