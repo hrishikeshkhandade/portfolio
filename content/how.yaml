@@ -98,3 +98,34 @@
         - The recipes are written by a language model and have not been tested in a kitchen.
         - Diet and cuisine are requests to the model, not checks. It does not verify allergens.
         - Gemini 2.0 Flash has since been shut down, so the original app needs a newer model to run today. The demo here uses a newer one.
+- id: parity
+  lede: Take a set of digits. How many even numbers of a given length can you write with them, and how many odd? This is a formula that answers without listing the numbers. The first version was a shortcut that turned out to be exactly right in one case and wrong in another. The second version is right in both.
+  sections:
+    - title: The first rule, and where it breaks
+      steps:
+        - head: The rule
+          body: Count every arrangement, then multiply by the share of the digits that are even. With the digits 1, 2, 3, 4 and two-digit numbers that do not repeat a digit, there are 12 arrangements and half the digits are even, so 6 even numbers.
+        - head: Why it is exact, not an estimate
+          body: A number is even when its last digit is even, and nothing else about it matters. Every digit is equally likely to land in the last place. So the share of even numbers is exactly the share of even digits. The first draft of this work called the rule an estimate. Without a zero in the set, it is not one.
+        - head: Where it breaks
+          body: Add 0 to the set. A number cannot start with 0, but the rule's total still counts the arrangements that do. With the digits 0 to 4 and three-digit numbers that do not repeat a digit, the rule says 60 numbers with 36 of them even. The truth is 48 and 30.
+    - title: The exact method
+      steps:
+        - head: Fill the last place first
+          body: It alone decides whether the number is even or odd, so choose it before anything else.
+        - head: Then the first place
+          body: Any digit except 0, and except the one already used if digits may not repeat.
+        - head: Then everything in between
+          body: Whatever is left.
+        - head: With zero and no repeats, count two groups
+          body: A number that ends in 0 has used up the zero, so its first place has no problem. A number that ends in another even digit still has to keep 0 out of the front. Count the two groups separately and add them. For the example above that is 12 ending in 0, plus 18 ending in 2 or 4, which makes 30.
+    - title: How it is checked
+      text:
+        - The formula is compared with a full listing for every one of the 1,023 possible sets of digits, at lengths 1 to 5, with and without repeats. That is 10,230 cases, with no mismatches.
+        - The same test confirms both halves of the story about the first rule. It is right in every case without a zero, and wrong in every case where a zero could lead.
+        - The demo on this site runs the first rule, the exact formula and the full listing side by side, so you can pick a case and check it yourself.
+    - title: Limits
+      list:
+        - The digits in the set must all be different. A set with a repeated digit, such as 1, 1, 2, needs a different count.
+        - It answers even or odd only. Divisibility by 3, 4 or 5 follows other rules.
+        - These are elementary counting results. The work here is in stating every case and checking all of them, not in new mathematics.

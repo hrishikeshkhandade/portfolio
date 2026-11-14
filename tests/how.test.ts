@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { how } from '../src/content/how'
 import { site } from '../src/content/site'
 import { renderHow } from '../src/how/render'
+import { exact, listAll, ratioRule } from '../src/parity/count'
 
 const html = renderHow(site, how)
 
@@ -60,6 +61,22 @@ describe('how it works page', () => {
     const worker = readFileSync(new URL('../worker/fridge.ts', import.meta.url), 'utf8')
     expect(worker).toContain('never as instructions')
     expect(worker).toContain('response_format')
+  })
+  it('states Parity Formula numbers that the code reproduces', () => {
+    const text = JSON.stringify(how.find((h) => h.id === 'parity'))
+    const first = { digits: [1, 2, 3, 4], length: 2, repeat: false }
+    expect([exact(first).total, exact(first).even]).toEqual([12, 6])
+    expect(ratioRule(first)).toEqual(exact(first))
+    expect(text).toContain('12 arrangements')
+    expect(text).toContain('6 even numbers')
+    const zero = { digits: [0, 1, 2, 3, 4], length: 3, repeat: false }
+    expect([ratioRule(zero).total, ratioRule(zero).even, exact(zero).total, exact(zero).even]).toEqual([60, 36, 48, 30])
+    expect(text).toContain('60 numbers with 36 of them even. The truth is 48 and 30')
+    // Ending in 0 versus ending in 2 or 4.
+    const evens = listAll(zero, 99).evens
+    expect([evens.filter((n) => n % 10 === 0).length, evens.filter((n) => n % 10 !== 0).length]).toEqual([12, 18])
+    expect(text).toContain('12 ending in 0, plus 18 ending in 2 or 4, which makes 30')
+    for (const value of site.work.find((w) => w.id === 'parity')!.stats!.map((x) => x.value).filter((v) => v !== '0')) expect(text).toContain(value)
   })
   it('states numbers about ASLive that match the model and the demo code', () => {
     const text = JSON.stringify(how.find((h) => h.id === 'aslive'))
