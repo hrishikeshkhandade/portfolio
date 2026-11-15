@@ -93,6 +93,17 @@ work:
             - Toss pasta in with a splash of water, parmesan and torn basil.
     links:
       - { label: Code, url: "https://github.com/hrishikeshkhandade/Chefs-Fridge" }
+  - name: Tickbook
+    id: tickbook
+    line: Limit order book and matching engine in C++20
+    stat: "10–19M ops/s native · 33 tests"
+    summary: A matching engine like the one inside an exchange. It takes buy and sell orders, matches them by price and then by arrival time, and records every trade. The book on this page is the real C++ engine, compiled to WebAssembly and running in your browser.
+    stats:
+      - { value: "10–19M", label: "operations a second, native build, one core" }
+      - { value: "1.2M", label: "random operations checked against a second book" }
+      - { value: "33", label: "tests, also clean under sanitizers" }
+    note: The speed figure is the native C++ build on an Apple M5 Pro laptop, measured over 5,000,000 operations. It does not describe the WebAssembly build on this page, which has its own timer below the book.
+    links: []
   - name: Parity Formula
     id: parity
     line: Counts the even and odd numbers a digit set can form

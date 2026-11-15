@@ -207,3 +207,55 @@ a.key.primary { text-decoration: none; justify-self: start; padding-left: var(--
   .pz-pick { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .pz-table td { font-size: var(--t-h3); }
 }
+
+/* ---- Tickbook ---- */
+.project.tickbook { overflow-y: auto; }
+.tickbook .p-demo { gap: var(--s3); width: 100%; }
+.tk-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: var(--s5); width: 100%; }
+.tk-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); width: 100%; }
+.tk-head .label { margin: 0 auto 0 0; }
+.tk-head .tab, .tk-time .tab { min-height: 32px; padding: var(--s1) var(--s3); font-size: var(--t-cap); }
+.tk-ladder { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; font-variant-numeric: tabular-nums; }
+.tk-row { display: grid; grid-template-columns: 52px 44px minmax(0, 1fr) 60px; align-items: center; gap: var(--s2); height: 22px; font-size: var(--t-cap); color: var(--ink-soft); }
+.tk-price { font: inherit; font-size: var(--t-body); color: var(--ink); text-align: right; background: none; border: 0; padding: 0; height: 100%; }
+button.tk-price { cursor: pointer; border-radius: 3px; }
+button.tk-price:hover { background: var(--wash); }
+button.tk-price:focus-visible { outline: 1px solid var(--signal); outline-offset: 0; }
+.tk-qty { text-align: right; color: var(--ink); }
+.tk-bar { height: 10px; }
+.tk-bar i { display: block; height: 100%; background: var(--ink-faint); transition: width 200ms var(--ease); }
+.tk-buy .tk-bar i { background: var(--signal); opacity: 0.7; }
+.tk-buy .tk-price { color: var(--signal); }
+.tk-none .tk-price { color: var(--ink-faint); }
+.tk-gap { height: 26px; display: flex; align-items: center; margin: var(--s1) 0; padding-left: 60px; border-block: 1px solid var(--rule); font-size: var(--t-cap); color: var(--ink-soft); }
+.tk-ticket { display: grid; gap: var(--s3); width: 100%; }
+.tk-pick { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); }
+.tk-pick .tab { min-height: 32px; padding: var(--s1) var(--s3); }
+.tk-hint { min-height: 4.5em; max-width: 60ch; }
+.tk-fields { display: flex; flex-wrap: wrap; align-items: end; gap: var(--s3) var(--s4); }
+.tk-field { display: grid; gap: var(--s1); font-size: var(--t-cap); color: var(--ink-soft); }
+.tk-field input {
+  font: inherit; font-size: var(--t-body); color: var(--ink); background: none; width: 9ch; min-height: 36px;
+  padding: var(--s1) var(--s2); border: 1px solid var(--rule); border-radius: 4px; font-variant-numeric: tabular-nums;
+}
+.tk-field input:disabled { opacity: 0.4; }
+.tk-ticket .key.primary { justify-self: start; padding-left: var(--s5); min-width: 16ch; justify-content: center; }
+.tk-status { color: var(--ink); min-height: 3em; max-width: 60ch; }
+.tk-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s5); width: 100%; }
+.tk-tape, .tk-mine { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: var(--t-cap); color: var(--ink-soft); font-variant-numeric: tabular-nums; align-content: start; }
+.tk-tape { min-height: calc(6 * 1.5em + 10px); }
+.tk-tape li { display: grid; grid-template-columns: 5ch minmax(0, 1fr) 3ch; gap: var(--s2); }
+.tk-tape .tk-yours { color: var(--signal); }
+.tk-mine li { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); color: var(--ink); }
+.tk-mine .key { min-height: 24px; padding: 0 var(--s2); font-size: var(--t-cap); }
+.tk-quiet { color: var(--ink-soft); }
+.tk-time { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--s2) var(--s4); justify-items: start; width: 100%; padding-top: var(--s3); border-top: 1px solid var(--rule); }
+.tk-time .a-pipe { min-height: 4.5em; max-width: 60ch; display: grid; align-content: center; }
+.tk-time .tab:disabled { opacity: 0.5; cursor: default; }
+@media (max-width: 480px) {
+  .tk-lists { grid-template-columns: minmax(0, 1fr); }
+  .tk-time { grid-template-columns: minmax(0, 1fr); }
+  .tk-time .a-pipe { min-height: 6em; align-content: start; }
+}
+@media (max-width: 640px) { .tk-main { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .tk-bar i { transition: none; } }
