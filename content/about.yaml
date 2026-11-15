@@ -1,4 +1,4 @@
-intro: I am a computer science student at the University of Illinois who likes turning an idea into something people can open and use. So far that has meant a sign language translator on two app stores, a game that teaches research papers, and a recipe app that reads your fridge.
+intro: I am a computer science student at the University of Illinois who likes turning an idea into something people can open and use. So far that has meant a sign language translator on two app stores, a game that teaches research papers, a recipe app that reads your fridge, and a C++ order book matching engine you can trade against on this site.
 location: Champaign, Illinois
 education:
   - school: University of Illinois Urbana-Champaign
@@ -23,6 +23,13 @@ experience:
       - Designed and deployed Chef's Fridge, an AI nutrition and recipe app (Python, Streamlit) that uses Gemini to recognize ingredients from photos and generate recipes; beta tested with 30+ users.
       - Cut application load time by 40% through targeted performance optimization.
 projects:
+  - name: Tickbook
+    context: Independent project
+    when: Nov 2026
+    points:
+      - A limit order book and matching engine in C++20 with price-time priority; supports limit (GTC, IOC, FOK), market and cancel orders, using integer prices and quantities throughout.
+      - Measured at about 10 to 19 million operations per second on one core of an Apple M5 Pro laptop over a 5,000,000-operation synthetic stream, with 99% of operations finishing within 416 ns.
+      - Verified with 33 tests, including a randomized test that checks 1,200,000 operations against a separate reference implementation; clean under AddressSanitizer and UBSan. Compiled to WebAssembly for a playable demo.
   - name: Super Scholar
     context: CS 124 independent project, UIUC
     when: Oct 2026 to present
@@ -52,7 +59,7 @@ honors:
 leadership:
   - Aeronautics and Aviation Club, Founding Member and Editorial Head. Organized speaker sessions and wrote flight-science articles; grew student participation by 20%.
 skills:
-  - { label: Languages, items: "Python, Java, TypeScript, SQL" }
-  - { label: Tools, items: "scikit-learn, MediaPipe, Streamlit, Phaser, pdf.js, Vitest, Git, Gemini API, Cloudflare Workers" }
+  - { label: Languages, items: "Python, C++, Java, TypeScript, SQL" }
+  - { label: Tools, items: "scikit-learn, MediaPipe, Streamlit, Phaser, pdf.js, Vitest, CMake, GoogleTest, Emscripten (WebAssembly), Git, Gemini API, Cloudflare Workers" }
   - { label: Spoken, items: "English, Hindi, Marathi" }
 certifications: "Quantitative Modeling (Wharton), Probability and Statistics (University of London), Bloomberg Finance Fundamentals, Enterprise Data Wrangling with SQL and Python, Generative AI (Google Cloud)"
