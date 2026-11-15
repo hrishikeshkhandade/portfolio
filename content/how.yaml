@@ -129,3 +129,56 @@
         - The digits in the set must all be different. A set with a repeated digit, such as 1, 1, 2, needs a different count.
         - It answers even or odd only. Divisibility by 3, 4 or 5 follows other rules.
         - These are elementary counting results. The work here is in stating every case and checking all of them, not in new mathematics.
+- id: tickbook
+  lede: Tickbook is a limit order book and matching engine, the part of an exchange that decides who trades with whom and at what price. It is written in C++20. The book on this site is that same C++ compiled to WebAssembly, so the orders you place are matched by the real engine inside your browser tab.
+  sections:
+    - title: What happens to an order
+      steps:
+        - head: Check it
+          body: An order with quantity 0 is rejected. So is an order whose id belongs to an order resting in the book right now.
+        - head: Match while prices cross
+          body: A buy order trades against the lowest-priced sell orders, and a sell order against the highest-priced buy orders. At the same price, the order that arrived first trades first. The trade happens at the resting order's price. If you bid 105 and the best ask is 100, you pay 100.
+        - head: Decide what happens to the rest
+          body: A plain limit order rests in the book at its price until it trades or is cancelled. Immediate or cancel drops whatever did not trade. Fill or kill trades the whole quantity or does nothing, and it decides before trading by adding up the totals of the price levels within its limit. A market order has no price to rest at, so its remainder is dropped.
+        - head: Record the trades
+          body: Every fill is added to a trade log with both order ids, the price and the quantity. Prices are whole ticks and quantities are whole units, so no floating point is used for money anywhere in the engine.
+    - title: Four data structures, one question each
+      points:
+        - head: Which price is best?
+          body: Each side of the book is a sorted map from price to a price level. Finding or adding a level costs time that grows with the logarithm of the number of prices. An array indexed by tick would be faster but needs a price range fixed in advance, and it is what I would try next.
+        - head: Who is first at a price?
+          body: Each level is a queue kept as a doubly linked list. New orders join the tail and trades take from the head. Because every order knows both its neighbours, cancelling one from the middle of the queue takes the same time as cancelling from either end.
+        - head: Where is order 12345?
+          body: A cancel arrives with only an id. A hash map from id to the order's slot finds it without scanning the book.
+        - head: Where do orders live?
+          body: All resting orders sit in one array. A removed order's slot goes on a free list and the next new order reuses it, so the engine does not ask for memory on every order. Orders point at each other by 32-bit position in that array, which stays correct when the array grows and moves.
+    - title: How it is checked
+      text:
+        - There are 33 tests. 32 are unit tests, one behaviour each. The last is a randomized test that feeds the same random orders to the engine and to a second order book, written to be slow and obviously correct, which shares no data structure with it. After every operation the result and the trades must be identical.
+        - "One default run of that test, measured: 300 streams, 1,200,000 operations and 556,489 trades, in about 1.2 seconds."
+        - To see whether the randomized test catches real bugs, I broke the engine on purpose in five ways, one at a time. Four made the test fail. The fifth made the engine loop forever, so tests now have a 120 second timeout and a hang counts as a failure.
+        - All 33 tests also pass under AddressSanitizer and UndefinedBehaviorSanitizer, which catch memory errors and undefined behaviour while the program runs.
+    - title: How fast, and how that was measured
+      text:
+        - "The native benchmark times 5,000,000 operations from a made-up stream on one thread: 50% limit orders that rest, 4% limit orders that cross, 3% market orders and 43% cancels. The stream is generated before the clock starts. It ran on a MacBook with an Apple M5 Pro, in a release build, 11 times."
+        - The median was 17.26 million operations a second in one sitting and 10.35 million in another, when a browser was using more than a full core. So the honest figure is about 10 to 19 million a second on one core, depending on what else the laptop is doing. I have not measured it on an idle, dedicated machine.
+        - With a clock read around every operation, 99% of operations finished within 416 nanoseconds. The clock on that machine ticks every 41 nanoseconds, so I do not quote a median. The slowest single operation took 32.8 milliseconds, and it was the engine's memory growing, not matching.
+    - title: The version on this page
+      points:
+        - head: Same engine, different compiler
+          body: Emscripten compiles the same source to one WebAssembly file of about 23 KB. The engine needed no changes because it does no input or output and uses no threads or clock.
+        - head: A thin C interface
+          body: A browser cannot call C++ classes directly. One extra file wraps a single book behind nine plain functions that take numbers, and writes results into a block of 32-bit integers that the page reads. It hands out order ids and contains no matching logic.
+        - head: The page only draws
+          body: The page sends your order to the engine, then asks it for the price levels, your resting orders and the new trades. It never works out a fill itself.
+        - head: The sample orders are made up
+          body: With sample orders on, random orders arrive so there is something to trade against. They are not market data.
+        - head: Its own timer
+          body: The native figures say nothing about this build, so the page can time itself. The button runs 500,000 operations with the same mix as the native benchmark, from a different random stream, after 20,000 resting orders, and shows the result for your device. On the laptop above, in Chromium 156, five runs gave 4.8 to 5.3 million operations a second. That includes a call from JavaScript into the engine for every operation, and the stream is shorter, so it is not a like-for-like comparison with the native figure.
+    - title: Limits
+      list:
+        - One instrument and one thread. There is no locking.
+        - No order modify, stop orders, iceberg orders or self-trade prevention. The engine does not know who owns an order.
+        - Nothing is saved. The book lives in memory, and on this page it is gone when you leave.
+        - The benchmark stream is synthetic, and real order flow has different shapes. It was measured on one laptop under normal use.
+        - The browser interface carries 32-bit numbers, and the demo caps price and quantity at 1,000,000. The engine underneath uses 64 bits.
