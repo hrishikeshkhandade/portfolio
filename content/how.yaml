@@ -174,7 +174,7 @@
         - head: The sample orders are made up
           body: With sample orders on, random orders arrive so there is something to trade against. They are not market data.
         - head: Its own timer
-          body: The native figures say nothing about this build, so the page can time itself. The button runs 500,000 operations with the same mix as the native benchmark, from a different random stream, after 20,000 resting orders, and shows the result for your device. On the laptop above, in Chromium 156, five runs gave 4.8 to 5.3 million operations a second. That includes a call from JavaScript into the engine for every operation, and the stream is shorter, so it is not a like-for-like comparison with the native figure.
+          body: The native figures say nothing about this build, so the page can time itself. The button runs 500,000 operations with the same mix as the native benchmark, from a different random stream, after 20,000 resting orders, and shows the result for your device. That result includes a call from JavaScript into the engine for every operation, and the stream is shorter, so it is not a like-for-like comparison with the native figure. I do not quote a browser figure of my own here, because my runs so far were in a background tab and varied too much to trust.
     - title: Limits
       list:
         - One instrument and one thread. There is no locking.
