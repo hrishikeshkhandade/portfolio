@@ -78,6 +78,7 @@ a.key.primary { text-decoration: none; justify-self: start; padding-left: var(--
   image-rendering: pixelated; border-radius: 6px; outline: 1px solid rgba(0, 0, 0, 0.1); outline-offset: -1px;
   background: var(--wash);
 }
+.shot-game { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 6px; outline: 1px solid rgba(0, 0, 0, 0.1); outline-offset: -1px; background: #1b1a17; }
 .shot-bar { display: flex; justify-content: space-between; gap: var(--s4); font-size: var(--t-cap); color: var(--ink-soft); min-height: 1.5em; }
 .shot-cap { color: var(--ink); }
 .thumbs { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--s2); width: 100%; }

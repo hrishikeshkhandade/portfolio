@@ -8,10 +8,37 @@ export function createSuperScholar(): Scene {
   const src = (file: string): string => `/media/super-scholar/${file}.png`
 
   let section: HTMLElement, mini: Mini, img: HTMLImageElement, caption: HTMLElement, count: HTMLElement
+  let shotFrame: HTMLElement, game: HTMLIFrameElement | null = null
   let thumbs: HTMLButtonElement[] = []
+  const gameUrl = work.links[0].url
+
+  /** The full game runs from its own site in a frame. It exists only while shown, so leaving it stops its sound. */
+  function closeGame(): void {
+    game?.remove()
+    game = null
+  }
+
+  function openGame(): void {
+    mini.stop()
+    mini.el.hidden = true
+    img.hidden = true
+    if (!game) {
+      game = el('iframe', 'shot-game')
+      game.src = gameUrl
+      game.title = 'Super Scholar, the full game'
+      game.allow = 'fullscreen; autoplay'
+      game.referrerPolicy = 'strict-origin-when-cross-origin'
+      shotFrame.prepend(game)
+    }
+    game.focus()
+    caption.textContent = 'The full game, running from its own site. Click it to give it the keyboard.'
+    count.textContent = ''
+    thumbs.forEach((t) => t.setAttribute('aria-pressed', 'false'))
+  }
 
   /** -1 shows the playable level; 0 and up show a screenshot from the full game. */
   function show(index: number): void {
+    closeGame()
     const playing = index < 0
     mini.el.hidden = !playing
     img.hidden = playing
@@ -37,12 +64,16 @@ export function createSuperScholar(): Scene {
       section = projectSection('scholar')
       const text = projectText(work)
       const links = text.querySelector('.p-links')!
-      links.before(externalLink('Play the full game', work.links[0].url, 'key primary plain'))
-      // The primary button already goes to the game; keep the row for the remaining links.
-      links.firstElementChild?.remove()
+      const playFull = el('button', 'key primary plain', 'Play the full game here')
+      playFull.type = 'button'
+      playFull.addEventListener('click', openGame)
+      links.before(playFull)
+      // The first link is the game itself; offer it as a new tab for small screens.
+      links.firstElementChild?.replaceWith(externalLink('Open in a new tab', gameUrl))
 
       const demo = el('div', 'p-demo')
       const frame = el('figure', 'shot')
+      shotFrame = frame
       mini = createMini(work)
       img = el('img')
       img.width = 800
@@ -90,6 +121,7 @@ export function createSuperScholar(): Scene {
     stop() { mini.stop() },
     destroy() {
       document.removeEventListener('visibilitychange', onVisibility)
+      closeGame()
       mini.destroy()
       section.remove()
     },
