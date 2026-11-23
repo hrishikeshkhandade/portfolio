@@ -103,7 +103,8 @@ work:
       - { value: "1.2M", label: "random operations checked against a second book" }
       - { value: "33", label: "tests, also clean under sanitizers" }
     note: The speed figure is the native C++ build on an Apple M5 Pro laptop, measured over 5,000,000 operations. It does not describe the WebAssembly build on this page, which has its own timer below the book.
-    links: []
+    links:
+      - { label: Code, url: "https://github.com/hrishikeshkhandade/tickbook" }
   - name: Parity Formula
     id: parity
     line: Counts the even and odd numbers a digit set can form

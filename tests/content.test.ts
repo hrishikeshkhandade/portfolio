@@ -9,7 +9,7 @@ describe('site content', () => {
       expect(item.line.trim()).not.toBe('')
       expect(item.stat.trim()).not.toBe('')
       // Work with nothing published yet has no outside link; its scene is the proof.
-      if (!['parity', 'tickbook'].includes(item.id ?? '')) expect(item.links.length).toBeGreaterThanOrEqual(1)
+      if (!['parity'].includes(item.id ?? '')) expect(item.links.length).toBeGreaterThanOrEqual(1)
       for (const link of item.links) { expect(link.label.trim()).not.toBe(''); expect(link.url).toMatch(/^https:\/\//) }
     }
   })
