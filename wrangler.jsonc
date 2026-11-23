@@ -5,6 +5,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "portfolio",
+  // The hrishikhandade Cloudflare account. Named here because one login can reach more than one account.
+  "account_id": "167a06eccd9eb6db7e661c08b9b826ca",
   "main": "worker/index.ts",
   "compatibility_date": "2026-11-01",
   "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
