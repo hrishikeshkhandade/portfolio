@@ -15,8 +15,8 @@ label.append(dot, 'portfolio · CS at UIUC')
 
 // An open hand, not a letter: the card is about the work, and each finger holds one project.
 const OPEN: Pose = { curl: [0, 0, 0, 0], spread: 1, thumb: { angle: -58, curl: 0 }, rot: 0 }
-/** Fingertip landmarks, left to right as drawn: index, middle, ring, pinky. */
-const TIPS = [8, 12, 16, 20]
+/** Fingertip landmarks, left to right as drawn: thumb, index, middle, ring, pinky. */
+const TIPS = [4, 8, 12, 16, 20]
 const names = site.work.slice(0, TIPS.length).map((w) => w.name)
 
 // The site draws the hand with 1px lines and 3px joints; drawing small and scaling by K keeps those proportions.
