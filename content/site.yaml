@@ -27,7 +27,7 @@ work:
     summary: A retro platformer that turns a dense research paper into worlds you learn by playing. Each section becomes levels, a lesson, practice questions and a boss fight. Upload any PDF, or search 250 million papers.
     stats:
       - { value: "5", label: "papers built in, any PDF playable" }
-      - { value: "192", label: "automated tests, 19 play-throughs" }
+      - { value: "197", label: "automated tests, 21 play-throughs" }
       - { value: "500", label: "generated levels proved beatable" }
     mini:
       paper: "Attention Is All You Need (2017)"

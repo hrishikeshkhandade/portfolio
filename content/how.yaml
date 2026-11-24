@@ -57,8 +57,8 @@
           body: The checker finds every spot the player can reach by walking, dropping and jumping. It allows a jump to use at most 80% of a perfect running jump's reach, so a level is fair for a person and not only possible for a computer.
     - title: How it is tested
       text:
-        - There are 192 automated tests. One of them generates 500 levels across every difficulty and checks that each can be finished.
-        - A further 19 play-through checks drive the real game in a hidden browser, including on a phone-sized screen.
+        - There are 197 automated tests. One of them generates 500 levels across every difficulty and checks that each can be finished.
+        - A further 21 play-through checks drive the real game in a hidden browser, including on a phone-sized screen.
         - The server side limits how many requests each visitor can make a minute, and every page is sent with a strict content security policy.
     - title: Limits
       list:
